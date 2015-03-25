@@ -3,10 +3,12 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 
+    ofSetFrameRate(10000);
+
     mWorker = new GLANN();
     mWorker->initGLANN(256);
 
-    mNetwork = new ANNData( 256, 0.9, 0.1, 0.0);
+    mNetwork = new ANNData( 256, 1.4, 0.3, 0.0);
 
     frameCounter = 0;
     train = true;
