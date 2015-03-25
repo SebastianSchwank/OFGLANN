@@ -43,7 +43,7 @@ void ofApp::draw(){
 
     if(train) mWorker->propergateBW(input,error,mNetwork);
 
-    //mWorker->draw(mNetwork);
+    mWorker->draw(mNetwork);
 
    ofSetColor(255);
     for(int i = 1; i < 128; i++)

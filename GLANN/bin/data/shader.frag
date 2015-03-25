@@ -94,7 +94,7 @@ void main()
         vec4 inputColor = texture(inputV,vec2(gl_FragCoord.x,1));
         float inputValue = unpack(inputColor);
 
-        gl_FragColor = pack(clip(unmap(weightsValue + 5.0 * errorValue)));
+        gl_FragColor = pack(clip(unmap(learningRate * errorValue * inputValue + weightsValue)));
 
     }
 

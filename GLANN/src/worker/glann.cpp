@@ -146,9 +146,10 @@ vector<float> GLANN::propergateBW(vector<float> input, vector<float> error
 
     ofPixels fboPixels;
 
-    fbo.readToPixels(fboPixels);
+    fbo.readToPixels(fboPixels,0);
+
     netToProcess->mWeights.setFromPixels(fboPixels);
-    netToProcess->mWeights.draw(0,0);
+    //netToProcess->mWeights.draw(0,0);
 
     return input;
 }
