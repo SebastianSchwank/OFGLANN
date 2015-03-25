@@ -9,7 +9,7 @@ void ofApp::setup(){
     mWorker = new GLANN();
     mWorker->initGLANN(256);
 
-    mNetwork = new ANNData( 256, 0.1, 0.4, 0.05);
+    mNetwork = new ANNData( 256, 0.2, 0.1, 0.05);
 
     frameCounter = 0;
     train = true;
