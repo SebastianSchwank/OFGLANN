@@ -1,7 +1,5 @@
 // fragment shader
 
-#version 150
-
 uniform sampler2DRect inputV;
 uniform sampler2DRect errorV;
 
@@ -65,7 +63,7 @@ void main()
 
     //Sum and Sig the rows
     if(shaderMode == 2){
-        if(gl_FragCoord.x < 1){
+        if(gl_FragCoord.x < 1.0){
             float sumPixels = 0.0;
             for(int i = 0; i < size; i++){
                 sumPixels += map(unpack(texture(weightsM,vec2(i,gl_FragCoord.y))));
@@ -77,7 +75,7 @@ void main()
     //Backpropagate Error
     if(shaderMode == 3){
 
-        if(gl_FragCoord.y < 1){
+        if(gl_FragCoord.y < 1.0){
 
         }
 
@@ -94,14 +92,14 @@ void main()
         vec4 inputColor = texture(inputV,vec2(gl_FragCoord.x,1));
         float inputValue = unpack(inputColor);
 
-        gl_FragColor = pack(clip(unmap(learningRate * errorValue * inputValue + weightsValue)));
+        gl_FragColor = pack(clip(unmap(learningrate * errorValue * inputValue * 25.0 + weightsValue)));
 
     }
 
     if(shaderMode == -1){
         vec4 pixelColor = texture(weightsM,gl_FragCoord.xy);
         float pixelValue = map(unpack(pixelColor));
-        if(pixelValue >= 0) gl_FragColor = vec4(pixelValue,0.0,0.0,1.0);
+        if(pixelValue >= 0.0) gl_FragColor = vec4(pixelValue,0.0,0.0,1.0);
         else gl_FragColor = vec4(0.0,0.0,abs(pixelValue),1.0);
     }
 
