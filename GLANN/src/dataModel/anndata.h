@@ -8,14 +8,21 @@
 class ANNData
 {
     public:
-        ANNData(int size);
+        ANNData(int size, float learningRate, float steepness, float momentum);
         ANNData(ofImage preCalcWeightsImage);
         virtual ~ANNData();
         ANNData(const ANNData& other);
 
-    //private:
+        float getSteepness();
+        float getLearningRate();
+        float getMomentum();
+
+        int getSize();
+
         ofImage mWeights;
         ofImage mMomentum;
+
+    private:
 
         float learningRate;
         float steepness;

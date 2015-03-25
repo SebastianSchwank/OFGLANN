@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
-		<Project filename="GLANN.cbp" active="1">
-			<Depends filename="..\..\..\..\Desktop\Programmierung\of_v0.8.4_win_cb_release\libs\openFrameworksCompiled\project\win_cb\openFrameworksLib.cbp" />
-		</Project>
-		<Project filename="..\..\..\..\Desktop\Programmierung\of_v0.8.4_win_cb_release\libs\openFrameworksCompiled\project\win_cb\openFrameworksLib.cbp" />
+		<Project filename="GLANN.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

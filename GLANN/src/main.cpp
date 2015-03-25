@@ -3,15 +3,15 @@
 
 // import programmable shaders
 #ifdef TARGET_OPENGLES
-#include "ofGLProgrammableRenderer.h"
+    #include "ofGLProgrammableRenderer.h"
 #endif
 
 //========================================================================
-int main( ){
+int main(int argc,char* argv[]){
 
     ofSetLogLevel(OF_LOG_VERBOSE);
 	#ifdef TARGET_OPENGLES
-    ofSetCurrentRenderer(ofGLProgrammableRenderer::TYPE);
+        ofSetCurrentRenderer(ofGLProgrammableRenderer::TYPE);
 	#endif
 	ofSetupOpenGL(512,512,OF_WINDOW);			// <-------- setup the GL context
 

@@ -5,6 +5,7 @@
 #include "ofImage.h"
 #include "ofFbo.h"
 #include "ofColor.h"
+#include "ofGraphics.h"
 
 #include "..\dataModel\anndata.h"
 
@@ -17,7 +18,7 @@ class GLANN
         virtual ~GLANN();
 
         //Loades the shader and inits the fbos
-        bool initGLANN();
+        bool initGLANN(int FboSize);
 
         //This function propergates an input Vector through a given ANN returning
         //it's output (in case of rekurrent networks do this multible times on the
@@ -31,10 +32,15 @@ class GLANN
                                    vector<float> output,
                                    vector<float> target,
                                     ANNData* netToProcess);
+
+        void draw(ANNData* netToProcess);
+
     protected:
     private:
 		ofShader shader;
-		ofFbo    framebuffer;
+		ofFbo    fbo;
+
+		int      mFBOSize;
 
 		ofImage  mCurrInput;
 		ofImage  mCurrOutput;

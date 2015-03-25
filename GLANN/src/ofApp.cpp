@@ -3,6 +3,10 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 
+    mWorker = new GLANN();
+    mWorker->initGLANN(512);
+
+    mNetwork = new ANNData( 512, 0.1, 1.0, 0.05);
 }
 
 //--------------------------------------------------------------
@@ -12,9 +16,19 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ANNData testObj(500);
 
-    testObj.mWeights.draw(0,0);
+    //vector<float> input;
+    //for(int i = 0; i < 50; i++) input.push_back(0.9999);
+    //vector<float> output = mWorker->propergateFW(input,mNetwork);
+
+    //for(int i = 0; i < 50; i++) cout << output[i] << "|";
+    //cout << "\n";
+
+    ofClear(0,0,0,0);
+
+    //ofRect(0,0,512,512);
+
+    mWorker->draw(mNetwork);
 
 }
 

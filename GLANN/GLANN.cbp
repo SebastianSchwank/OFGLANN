@@ -6,7 +6,7 @@
 		<Option makefile="makefile" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="addons\;src\;addons\ofxNetwork\src\;addons\ofxGui\src\;addons\ofxXmlSettings\src\;addons\ofxXmlSettings\libs\;src\worker\;src\dataModel\;" />
+		<Option virtualFolders="addons\;src\;addons\ofxNetwork\src\;addons\ofxGui\src\;addons\ofxXmlSettings\src\;addons\ofxXmlSettings\libs\;src\worker\;src\dataModel\;src\shaders\;" />
 		<Build>
 			<Target title="release">
 				<Option output="bin/$(PROJECT_NAME)" prefix_auto="1" extension_auto="1" />
@@ -220,17 +220,23 @@
 		<Unit filename="../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons/ofxXmlSettings/src/ofxXmlSettings.h">
 			<Option virtualFolder="addons/ofxXmlSettings/src" />
 		</Unit>
-		<Unit filename="shaders/shader.frag">
-			<Option virtualFolder="src/" />
+		<Unit filename="bin/data/shader.frag">
+			<Option virtualFolder="src/shaders/" />
 		</Unit>
-		<Unit filename="shaders/shader.vert">
-			<Option virtualFolder="src/" />
+		<Unit filename="bin/data/shader.vert">
+			<Option virtualFolder="src/shaders/" />
 		</Unit>
 		<Unit filename="src/dataModel/anndata.cpp">
 			<Option virtualFolder="src/dataModel/" />
 		</Unit>
 		<Unit filename="src/dataModel/anndata.h">
 			<Option virtualFolder="src/dataModel/" />
+		</Unit>
+		<Unit filename="src/glanntools.cpp">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Unit filename="src/glanntools.h">
+			<Option virtualFolder="src/" />
 		</Unit>
 		<Unit filename="src/main.cpp">
 			<Option virtualFolder="src" />
