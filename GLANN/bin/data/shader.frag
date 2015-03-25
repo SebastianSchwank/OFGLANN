@@ -14,18 +14,21 @@ uniform int size;
 
 uniform int shaderMode;
 
-vec4 pack( float v ) {
-  vec4 enc = vec4(1.0, 255.0, 65025.0, 160581375.0) * v;
-  enc = fract(enc);
-  enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);
-  enc.a = 1.0;
-  return enc;
+vec4 pack(const float value)
+{
+  const vec4 bitSh = vec4(256.0*256.0*256.0, 256.0*256.0, 256.0, 1.0);
+  const vec4 bitMsk = vec4(0.0, 1.0/256.0, 1.0/256.0, 1.0/256.0);
+  vec4 res = fract(value * bitSh);
+  res -= res.xxyz * bitMsk;
+  res.a = 1.0;
+  res.r = value;
+  return res;
 }
-
-float unpack( vec4 rgba ) {
-  return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/160581375.0) );
+float unpack(const vec4 value)
+{
+  const vec4 bitSh = vec4(1.0/(256.0*256.0*256.0), 1.0/(256.0*256.0), 1.0/256.0, 1.0);
+  return value.r;//(dot(value, bitSh));
 }
-
 //Map from 0..1 to -1..1 and unmap back
 float map(float val){
     return ((2.0*val)-1.0);
@@ -92,7 +95,7 @@ void main()
         vec4 inputColor = texture(inputV,vec2(gl_FragCoord.x,1));
         float inputValue = unpack(inputColor);
 
-        gl_FragColor = pack(clip(unmap(learningrate * errorValue * inputValue * 25.0 + weightsValue)));
+        gl_FragColor = pack(clip(unmap(learningrate * errorValue * inputValue * 30.0 + weightsValue)));
 
     }
 

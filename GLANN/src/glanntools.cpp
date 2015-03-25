@@ -39,8 +39,8 @@ ofColor GLANNTools::pack (float v) {
   }
 
   ofColor resCol;
-  resCol.set(enc[0]*255,enc[1]*255,
-             enc[2]*255,255);
+  resCol.set(enc[0]*255,255,
+             255,255);
 
   return resCol;
 }
@@ -49,11 +49,11 @@ float GLANNTools::unpack(ofColor pixelColor){
     float r = pixelColor.r/255.0;
     float g = pixelColor.g/255.0;
     float b = pixelColor.b/255.0;
-    float a = pixelColor.a/255.0;
-    float scaled = (float)(    r
-                             + g*(1.0f / 255.0f)
-                             + b*(1.0f / 65025.0f)
-                             + a*(1.0f / 160581375.0f));
+    //float a = pixelColor.a/255.0;
+    float scaled = (float)(    r                );
+                             //+ g*(1.0f / 255.0f)
+                             //+ b*(1.0f / 65025.0f));
+                             //+ a*(1.0f / 160581375.0f));
     return scaled;
 }
 

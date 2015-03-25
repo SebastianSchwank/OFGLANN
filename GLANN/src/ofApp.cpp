@@ -3,10 +3,6 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 
-    ofSetVerticalSync (false);
-    ofSetFrameRate(150);
-    ofEnableAlphaBlending();
-
     mWorker = new GLANN();
     mWorker->initGLANN(128);
 
