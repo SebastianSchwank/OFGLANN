@@ -3,8 +3,7 @@
 #version 150
 
 uniform sampler2DRect inputV;
-uniform sampler2DRect outputV;
-uniform sampler2DRect targetV;
+uniform sampler2DRect errorV;
 
 uniform sampler2DRect weightsM;
 uniform sampler2DRect momentumM;
@@ -43,6 +42,12 @@ float unmap(float val){
 float sigmoid(float x){
     return (1.0 / (1.0+exp(-x*steepness)));
 }
+//Bcs. of 1.0 can't be packed (BUG) i've to clip before
+float clip(float val){
+    if (val >= 1.0) return 0.9999;
+    if (val <= 0.0) return 0.0000;
+    return val;
+}
 
 void main()
 {
@@ -67,10 +72,33 @@ void main()
             for(int i = 0; i < size; i++){
                 sumPixels += map(unpack(texture(weightsM,vec2(i,gl_FragCoord.y))));
             }
-            gl_FragColor = pack(sigmoid(sumPixels));
+            gl_FragColor = pack(clip(sigmoid(sumPixels)));
         }
     }
 
+    //Backpropagate Error
+    if(shaderMode == 3){
+
+        if(gl_FragCoord.y < 1){
+
+        }
+
+    }
+
+    //Correct weights
+    if(shaderMode == 4){
+        vec4 weightsColor = texture(weightsM,gl_FragCoord.xy);
+        float weightsValue = map(unpack(weightsColor));
+
+        vec4 errorColor = texture(errorV,gl_FragCoord.xy);
+        float errorValue = map(unpack(errorColor));
+
+        vec4 inputColor = texture(inputV,gl_FragCoord.yx);
+        float inputValue = unpack(inputColor);
+
+        gl_FragColor = pack(clip(unmap(weightsValue + inputValue * learningrate * errorValue)));
+
+    }
 
     if(shaderMode == -1){
         vec4 pixelColor = texture(weightsM,gl_FragCoord.xy);

@@ -29,8 +29,7 @@ class GLANN
         //consisting of an input (already propergated by the net)
         //it's output and the desired/expected values named as target
         vector<float> propergateBW(vector<float> input,
-                                   vector<float> output,
-                                   vector<float> target,
+                                   vector<float> error,
                                     ANNData* netToProcess);
 
         void draw(ANNData* netToProcess);
@@ -43,7 +42,6 @@ class GLANN
 		int      mFBOSize;
 
 		ofImage  mCurrInput;
-		ofImage  mCurrOutput;
 		ofImage  mCurrError;
 };
 
