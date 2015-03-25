@@ -9,8 +9,8 @@ class GLANNTools
         GLANNTools();
         virtual ~GLANNTools();
 
-        static ofColor pack(float value);
-        static float   unpack(ofColor pixel);
+        static ofFloatColor pack(float value);
+        static float        unpack(ofFloatColor pixel);
 
     protected:
     private:

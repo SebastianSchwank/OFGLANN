@@ -11,7 +11,7 @@ ANNData::ANNData(int size, float learningRate, float steepness, float momentum)
     mWeights.allocate(size, size, OF_IMAGE_COLOR_ALPHA);
     for(int x = 0; x < size; x++){
         for(int y= 0; y < size; y++){
-            ofColor pixelColor = GLANNTools::pack(ofRandom(0.0,0.999));
+            ofColor pixelColor = GLANNTools::pack(ofRandom(0.45,0.55));
             mWeights.setColor(x,y,pixelColor);
         }
     }

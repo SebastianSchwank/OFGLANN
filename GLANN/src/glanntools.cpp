@@ -10,7 +10,7 @@ GLANNTools::~GLANNTools()
     //dtor
 }
 
-ofColor GLANNTools::pack (float v) {
+ofFloatColor GLANNTools::pack (float v) {
   float enc[4];
   enc [0] = fract (1.0f         * v);
   enc [1] = fract (255.0f       * v);
@@ -38,22 +38,21 @@ ofColor GLANNTools::pack (float v) {
       enc[3] = 0.0;
   }
 
-  ofColor resCol;
-  resCol.set(enc[0]*255,255,
-             255,255);
+  ofFloatColor resCol;
+  resCol.set(enc[0],enc[1],enc[2],enc[3]);
 
   return resCol;
 }
 
-float GLANNTools::unpack(ofColor pixelColor){
-    float r = pixelColor.r/255.0;
-    float g = pixelColor.g/255.0;
-    float b = pixelColor.b/255.0;
-    //float a = pixelColor.a/255.0;
-    float scaled = (float)(    r                );
-                             //+ g*(1.0f / 255.0f)
-                             //+ b*(1.0f / 65025.0f));
-                             //+ a*(1.0f / 160581375.0f));
+float GLANNTools::unpack(ofFloatColor pixelColor){
+    float r = pixelColor.r;
+    float g = pixelColor.g;
+    float b = pixelColor.b;
+    float a = pixelColor.a;
+    float scaled = (float)(    r
+                             + g*(1.0f / 255.0f)
+                             + b*(1.0f / 65025.0f)
+                             + a*(1.0f / 160581375.0f));
     return scaled;
 }
 
