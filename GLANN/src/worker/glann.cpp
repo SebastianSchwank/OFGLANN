@@ -159,7 +159,7 @@ void GLANN::draw(ANNData* netToProcess){
 
         shader.setUniformTexture("weightsM",netToProcess->mWeights.getTextureReference(),1);
 
-        netToProcess->mWeights.draw(0,0);
+        ofRect(0, 0, mFBOSize, mFBOSize);
 
     shader.end();
 }

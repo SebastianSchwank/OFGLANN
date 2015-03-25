@@ -27,5 +27,6 @@ class ofApp : public ofBaseApp{
         ANNData*    mNetwork;
 
         int frameCounter;
+        bool train;
 
 };

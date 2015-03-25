@@ -3,12 +3,16 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 
+    ofSetVerticalSync (false);
+    ofSetFrameRate(150);
+
     mWorker = new GLANN();
     mWorker->initGLANN(256);
 
-    mNetwork = new ANNData( 256, 0.4, 1.0, 0.05);
+    mNetwork = new ANNData( 256, 0.1, 0.4, 0.05);
 
     frameCounter = 0;
+    train = true;
 }
 
 //--------------------------------------------------------------
@@ -34,16 +38,25 @@ void ofApp::draw(){
     for(int i = 0; i < 256; i++)
         error.push_back((target[i]-output[i])*output[i]*(1.0-output[i]));
 
-    mWorker->propergateBW(input,error,mNetwork);
+    if(train) mWorker->propergateBW(input,error,mNetwork);
 
     mWorker->draw(mNetwork);
+
+   ofSetColor(255);
+    for(int i = 1; i < 256; i++)
+        ofLine(256+i,output[i-1]*50+50,256+i+1,output[i]*50+50);
+
+
+    ofSetColor(255);
+    for(int i = 1; i < 256; i++)
+        ofLine(256+i,input[i-1]*50+150,256+i+1,input[i]*50+150);
 
     frameCounter++;
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    train = !train;
 }
 
 //--------------------------------------------------------------
