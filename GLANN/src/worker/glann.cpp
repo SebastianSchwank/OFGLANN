@@ -50,6 +50,7 @@ vector<float> GLANN::propergateFW(vector<float> input, ANNData* netToProcess){
         shader.setUniform1i("size",mFBOSize);
 
         fbo.begin();
+            ofClear(0,0,0,0);
             ofRect(0, 0, mFBOSize, mFBOSize);
         fbo.end();
 
@@ -73,6 +74,7 @@ vector<float> GLANN::propergateFW(vector<float> input, ANNData* netToProcess){
         shader.setUniform1i("size",mFBOSize);
 
         fbo.begin();
+            ofClear(0,0,0,0);
             ofRect(0, 0, mFBOSize, mFBOSize);
         fbo.end();
 
@@ -129,13 +131,14 @@ vector<float> GLANN::propergateBW(vector<float> input, vector<float> error
         shader.setUniform1i("shaderMode",4);
 
         shader.setUniformTexture("weightsM",netToProcess->mWeights.getTextureReference(),1);
-        shader.setUniformTexture("inputV",mCurrInput.getTextureReference(),2);
-        shader.setUniformTexture("errorV",mCurrError.getTextureReference(),3);
+        shader.setUniformTexture("errorV",mCurrError.getTextureReference(),2);
+        shader.setUniformTexture("inputV",mCurrInput.getTextureReference(),3);
 
         shader.setUniform1i("size",mFBOSize);
         shader.setUniform1f("learningrate",netToProcess->getLearningRate());
 
         fbo.begin();
+            ofClear(0,0,0,0);
             ofRect(0, 0, mFBOSize, mFBOSize);
         fbo.end();
 
@@ -145,6 +148,8 @@ vector<float> GLANN::propergateBW(vector<float> input, vector<float> error
     fbo.readToPixels(corrWeights);
 
     netToProcess->mWeights.setFromPixels(corrWeights);
+
+    return error;
 
 }
 

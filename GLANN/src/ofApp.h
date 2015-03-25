@@ -26,4 +26,5 @@ class ofApp : public ofBaseApp{
         GLANN*      mWorker;
         ANNData*    mNetwork;
 
+        int frameCounter;
 };

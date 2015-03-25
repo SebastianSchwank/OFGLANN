@@ -3,10 +3,14 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 
-    mWorker = new GLANN();
-    mWorker->initGLANN(512);
+    ofEnableAlphaBlending();
 
-    mNetwork = new ANNData( 512, 0.4, 1.0, 0.05);
+    mWorker = new GLANN();
+    mWorker->initGLANN(256);
+
+    mNetwork = new ANNData( 256, 0.4, 1.0, 0.05);
+
+    frameCounter = 0;
 }
 
 //--------------------------------------------------------------
@@ -18,17 +22,34 @@ void ofApp::update(){
 void ofApp::draw(){
 
     vector<float> input;
-    for(int i = 0; i < 512; i++) input.push_back(sinf(i/512.0));
+    for(int i = 0; i < 256; i++)
+        input.push_back((1.0+sinf(((frameCounter % 256)/10.0)*i/256.0))/2.0);
     vector<float> output = mWorker->propergateFW(input,mNetwork);
 
-    vector<float> target = input;
+    vector<float> target;
+    for(int i = 0; i < 256; i++)
+        target.push_back(0.5);
+    target[frameCounter%256] = 1.0;
+
     vector<float> error;
-    for(int i = 0; i < 512; i++)
+    for(int i = 0; i < 256; i++)
         error.push_back((target[i]-output[i])*output[i]*(1.0-output[i]));
 
-    mWorker->propergateBW(input,error,mNetwork);
+    //mWorker->propergateBW(input,error,mNetwork);
 
     mWorker->draw(mNetwork);
+
+    //Render output
+    ofSetColor(255);
+    for(int i = 1; i < 256; i++)
+        ofLine(256+i,output[i-1]*50+50,256+i+1,output[i]*50+50);
+
+
+    ofSetColor(255);
+    for(int i = 1; i < 256; i++)
+        ofLine(256+i,input[i-1]*50+150,256+i+1,input[i]*50+150);
+
+    cout << frameCounter++ << "\n";
 }
 
 //--------------------------------------------------------------
