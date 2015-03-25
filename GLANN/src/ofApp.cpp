@@ -17,19 +17,12 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-    //vector<float> input;
-    //for(int i = 0; i < 50; i++) input.push_back(0.9999);
-    //vector<float> output = mWorker->propergateFW(input,mNetwork);
+    vector<float> input;
+    for(int i = 0; i < 512; i++) input.push_back(ofRandom(0.0,0.9999));
+    vector<float> output = mWorker->propergateFW(input,mNetwork);
 
-    //for(int i = 0; i < 50; i++) cout << output[i] << "|";
-    //cout << "\n";
-
-    ofClear(0,0,0,0);
-
-    //ofRect(0,0,512,512);
-
-    mWorker->draw(mNetwork);
-
+    for(int i = 0; i < 5; i++) cout << output[i] << "|";
+    cout << "\n";
 }
 
 //--------------------------------------------------------------

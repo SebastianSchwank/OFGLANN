@@ -38,19 +38,44 @@ vector<float> GLANN::propergateFW(vector<float> input, ANNData* netToProcess){
     for(int i = 0; i < mCurrInput.width; i++)
         mCurrInput.setColor(i,0,GLANNTools::pack(input[i]));
 
+    mCurrInput.reloadTexture();
+    mCurrInput.update();
+
     shader.begin();
 
         shader.setUniform1i("shaderMode",1);
 
-        shader.setUniformTexture("inputV",mCurrInput.getTextureReference(),1);
         shader.setUniformTexture("weightsM",netToProcess->mWeights.getTextureReference(),1);
+        shader.setUniformTexture("inputV",mCurrInput.getTextureReference(),2);
+
+        shader.setUniform1i("size",mFBOSize);
+
+        fbo.begin();
+            ofRect(0, 0, mFBOSize, mFBOSize);
+        fbo.end();
+
+    shader.end();
+
+    ofPixels MulMartix;
+    fbo.readToPixels(MulMartix);
+
+    ofImage MatrixImage;
+    MatrixImage.setFromPixels(MulMartix);
+    MatrixImage.update();
+
+    shader.begin();
+
+        shader.setUniform1i("shaderMode",2);
+
+        //Feedback into the "Pipeline"
+        shader.setUniformTexture("weightsM",MatrixImage.getTextureReference(),1);
 
         shader.setUniform1f("steepness",netToProcess->getSteepness());
         shader.setUniform1i("size",mFBOSize);
 
-    fbo.begin();
-        ofRect(0, 0, mFBOSize, mFBOSize);
-    fbo.end();
+        fbo.begin();
+            ofRect(0, 0, mFBOSize, mFBOSize);
+        fbo.end();
 
     shader.end();
 
@@ -59,7 +84,7 @@ vector<float> GLANN::propergateFW(vector<float> input, ANNData* netToProcess){
 
     vector<float> output;
     for(int i = 0; i < mFBOSize; i++)
-        output.push_back(GLANNTools::unpack(Output.getColor(i,0)));
+        output.push_back(GLANNTools::unpack(Output.getColor(0,i)));
 
     return output;
 }

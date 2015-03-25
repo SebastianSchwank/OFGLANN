@@ -21,6 +21,8 @@ vec4 pack( float v ) {
   vec4 enc = vec4(1.0, 255.0, 65025.0, 160581375.0) * v;
   enc = fract(enc);
   enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);
+  //Uncomment for full RGBA support
+  enc.a = 1.0;
   return enc;
 }
 
@@ -37,10 +39,38 @@ float unmap(float val){
     return (0.5*(val+1.0));
 }
 
+//sigmoide activation function
+float sigmoid(float x){
+    return (1.0 / (1.0+exp(-x*steepness)));
+}
+
 void main()
 {
     // gl_FragCoord contains the window relative coordinate for the fragment.
     //gl_FragColor = vec4(xTex,yTex,1.0,1.0);
+
+    //Multiply Matrix with InputVector
+    if(shaderMode == 1){
+        vec4 weightsColor = texture(weightsM,gl_FragCoord.xy);
+        float weightsValue = map(unpack(weightsColor));
+
+        vec4 inputColor = texture(inputV,gl_FragCoord.xy);
+        float inputValue = unpack(inputColor);
+
+        gl_FragColor = pack(unmap(weightsValue*inputValue));
+    }
+
+    //Sum and Sig the rows
+    if(shaderMode == 2){
+        if(gl_FragCoord.x < 1){
+            float sumPixels = 0.0;
+            for(int i = 0; i < size; i++){
+                sumPixels += map(unpack(texture(weightsM,vec2(i,gl_FragCoord.y))));
+            }
+            gl_FragColor = pack(sigmoid(sumPixels));
+        }
+    }
+
 
     if(shaderMode == -1){
         vec4 pixelColor = texture(weightsM,gl_FragCoord.xy);
