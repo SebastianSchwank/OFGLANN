@@ -21,7 +21,7 @@ bool GLANN::initGLANN(int FboSize){
 
     fbo.allocate(FboSize,FboSize);
     fbo.begin();
-        ofClear(0,0,0,255);
+        ofClear(0,0,0,0);
     fbo.end();
 
     mCurrError.allocate(FboSize,1,OF_IMAGE_COLOR_ALPHA);
@@ -50,6 +50,7 @@ vector<float> GLANN::propergateFW(vector<float> input, ANNData* netToProcess){
         shader.setUniform1i("size",mFBOSize);
 
         fbo.begin();
+            ofClear(0,0,0,0);
             ofRect(0, 0, mFBOSize, mFBOSize);
         fbo.end();
 
@@ -73,6 +74,7 @@ vector<float> GLANN::propergateFW(vector<float> input, ANNData* netToProcess){
         shader.setUniform1i("size",mFBOSize);
 
         fbo.begin();
+            ofClear(0,0,0,0);
             ofRect(0, 0, mFBOSize, mFBOSize);
         fbo.end();
 
@@ -136,23 +138,24 @@ vector<float> GLANN::propergateBW(vector<float> input, vector<float> error
         shader.setUniform1f("learningrate",netToProcess->getLearningRate());
 
         fbo.begin();
+            ofClear(0,0,0,0);
             ofRect(0, 0, mFBOSize, mFBOSize);
         fbo.end();
 
     shader.end();
 
-    ofPixels corrWeights;
-    fbo.readToPixels(corrWeights);
+    ofPixels fboPixels;
 
-    netToProcess->mWeights.setFromPixels(corrWeights);
-    netToProcess->mWeights.reloadTexture();
-    netToProcess->mWeights.update();
+    fbo.readToPixels(fboPixels);
+    netToProcess->mWeights.setFromPixels(fboPixels);
+    netToProcess->mWeights.draw(0,0);
 
+    return input;
 }
 
 void GLANN::draw(ANNData* netToProcess){
 
-    ofClear(0, 0, 0, 0);
+    ofClear(126, 126, 126, 126);
 
     shader.begin();
 
@@ -161,7 +164,7 @@ void GLANN::draw(ANNData* netToProcess){
 
         shader.setUniformTexture("weightsM",netToProcess->mWeights.getTextureReference(),1);
 
-        ofRect(0, 0, mFBOSize, mFBOSize);
+        netToProcess->mWeights.draw(0,0);
 
     shader.end();
 }

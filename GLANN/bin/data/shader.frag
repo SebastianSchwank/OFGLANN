@@ -20,7 +20,6 @@ vec4 pack( float v ) {
   vec4 enc = vec4(1.0, 255.0, 65025.0, 160581375.0) * v;
   enc = fract(enc);
   enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);
-  //Uncomment for full RGBA support
   enc.a = 1.0;
   return enc;
 }
@@ -33,7 +32,6 @@ float unpack( vec4 rgba ) {
 float map(float val){
     return ((2.0*val)-1.0);
 }
-
 float unmap(float val){
     return (0.5*(val+1.0));
 }
@@ -96,7 +94,7 @@ void main()
         vec4 inputColor = texture(inputV,vec2(gl_FragCoord.x,1));
         float inputValue = unpack(inputColor);
 
-        gl_FragColor = pack(clip(unmap(weightsValue + inputValue * learningrate * errorValue)));
+        gl_FragColor = pack(clip(unmap(weightsValue + 5.0 * errorValue)));
 
     }
 
