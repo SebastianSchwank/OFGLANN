@@ -27,6 +27,9 @@ class ofApp : public ofBaseApp{
         ANNData*    mNetwork;
 
         int frameCounter;
+        int netSize;
         bool train;
+        vector<float> globError;
+        vector<float> periodicalError;
 
 };

@@ -39,7 +39,7 @@ ofFloatColor GLANNTools::pack (float v) {
   }
 
   ofFloatColor resCol;
-  resCol.set(enc[0],enc[1],enc[2],enc[3]);
+  resCol.set(enc[0],enc[1],enc[2],1.0);
 
   return resCol;
 }
@@ -48,15 +48,15 @@ float GLANNTools::unpack(ofFloatColor pixelColor){
     float r = pixelColor.r;
     float g = pixelColor.g;
     float b = pixelColor.b;
-    float a = pixelColor.a;
+    //float a = pixelColor.a;
     float scaled = (float)(    r
                              + g*(1.0f / 255.0f)
-                             + b*(1.0f / 65025.0f)
-                             + a*(1.0f / 160581375.0f));
+                             + b*(1.0f / 65025.0f));
+                             //+ a*(1.0f / 160581375.0f));
     return scaled;
 }
 
 // C++ offers `modf (...)`, which does the same thing, but this is simpler.
 float GLANNTools::fract (float f) {
-  return f-(long)f;
+  return f-(int)f;
 }

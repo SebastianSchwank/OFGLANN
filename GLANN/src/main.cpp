@@ -13,7 +13,7 @@ int main(int argc,char* argv[]){
 	#ifdef TARGET_OPENGLES
         ofSetCurrentRenderer(ofGLProgrammableRenderer::TYPE);
 	#endif
-	ofSetupOpenGL(512,256,OF_WINDOW);			// <-------- setup the GL context
+	ofSetupOpenGL(384,128,OF_WINDOW);			// <-------- setup the GL context
 
 	// this kicks off the running of my app
 	// can be OF_WINDOW or OF_FULLSCREEN

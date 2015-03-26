@@ -8,10 +8,10 @@ ANNData::ANNData(int size, float learningRate, float steepness, float momentum)
     this->momentum = momentum;
 
     //Init the Weights to small random Values
-    mWeights.allocate(size, size, OF_IMAGE_COLOR_ALPHA);
+    mWeights.allocate(size, size, OF_IMAGE_COLOR);
     for(int x = 0; x < size; x++){
         for(int y= 0; y < size; y++){
-            ofColor pixelColor = GLANNTools::pack(ofRandom(0.45,0.55));
+            ofColor pixelColor = GLANNTools::pack(ofRandom(0.49,0.51));
             mWeights.setColor(x,y,pixelColor);
         }
     }
@@ -19,7 +19,7 @@ ANNData::ANNData(int size, float learningRate, float steepness, float momentum)
     mWeights.reloadTexture();
 
     //Init the Momentum to "zero" = 0.5
-    mMomentum.allocate(size,size,OF_IMAGE_COLOR_ALPHA);
+    mMomentum.allocate(size,size,OF_IMAGE_COLOR);
     for(int x = 0; x < size; x++){
         for(int y= 0; y < size; y++){
             ofColor pixelColor = GLANNTools::pack(0.5);

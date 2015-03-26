@@ -1,10 +1,14 @@
 // fragment shader
 
-uniform sampler2DRect inputV;
-uniform sampler2DRect errorV;
+#version 140
 
-uniform sampler2DRect weightsM;
-uniform sampler2DRect momentumM;
+varying vec2 TexCoord;
+
+uniform sampler2D inputV;
+uniform sampler2D errorV;
+
+uniform sampler2D weightsM;
+uniform sampler2D momentumM;
 
 uniform float steepness;
 uniform float learningrate;
@@ -52,21 +56,21 @@ void main()
 
     //Multiply Matrix with InputVector
     if(shaderMode == 1){
-        vec4 weightsColor = texture(weightsM,gl_FragCoord.xy);
+        vec4 weightsColor = texture(weightsM,TexCoord);
         float weightsValue = map(unpack(weightsColor));
 
-        vec4 inputColor = texture(inputV,gl_FragCoord.xy);
+        vec4 inputColor = texture(inputV,vec2(TexCoord.x,0.0));
         float inputValue = unpack(inputColor);
 
-        gl_FragColor = pack(unmap(weightsValue*inputValue));
+        gl_FragColor = pack(unmap(weightsValue * inputValue));
     }
 
     //Sum and Sig the rows
     if(shaderMode == 2){
-        if(gl_FragCoord.x < 1.0){
+        if(gl_FragCoord.x <= 1.0){
             float sumPixels = 0.0;
-            for(int i = 0; i < size; i++){
-                sumPixels += map(unpack(texture(weightsM,vec2(i,gl_FragCoord.y))));
+            for(float i = 1.0/float(size*2); i <= 1.0; i+= 1.0/float(size)){
+                sumPixels += map(unpack(texture(weightsM,vec2(i,TexCoord.y))));
             }
             gl_FragColor = pack(clip(sigmoid(sumPixels)));
         }
@@ -81,23 +85,37 @@ void main()
 
     }
 
-    //Correct weights
+    //calculate Momentum
     if(shaderMode == 4){
-        vec4 weightsColor = texture(weightsM,gl_FragCoord.xy);
+        vec4 weightsColor = texture(weightsM,TexCoord.xy);
         float weightsValue = map(unpack(weightsColor));
+        //weightsValue = weightsValue * (1.0- abs(weightsValue*weightsValue*weightsValue*weightsValue*weightsValue*weightsValue));
 
-        vec4 errorColor = texture(errorV,vec2(gl_FragCoord.y,1));
+        vec4 errorColor = texture(errorV,vec2(TexCoord.y,0.0));
         float errorValue = map(unpack(errorColor));
 
-        vec4 inputColor = texture(inputV,vec2(gl_FragCoord.x,1));
+        vec4 inputColor = texture(inputV,vec2(TexCoord.x,0.0));
         float inputValue = unpack(inputColor);
 
-        gl_FragColor = pack(clip(unmap(inputValue * learningrate * errorValue + weightsValue))); //inputValue * learningrate * errorValue +
+        vec4 momentumColor = texture(momentumM,TexCoord.xy);
+        float momentumValue = map(unpack(momentumColor));
 
+        gl_FragColor = pack(clip(unmap(inputValue * learningrate * errorValue + momentum * momentumValue)));
+    }
+
+    //Correct Weights
+    if(shaderMode == 5){
+        vec4 weightsColor = texture(weightsM,TexCoord.xy);
+        float weightsValue = map(unpack(weightsColor));
+
+        vec4 momentumColor = texture(momentumM,TexCoord.xy);
+        float momentumValue = map(unpack(momentumColor));
+
+        gl_FragColor = pack(clip(unmap(weightsValue + momentumValue)));
     }
 
     if(shaderMode == -1){
-        vec4 pixelColor = texture(weightsM,gl_FragCoord.xy);
+        vec4 pixelColor = texture(weightsM,TexCoord);
         float pixelValue = map(unpack(pixelColor));
         if(pixelValue >= 0.0) gl_FragColor = vec4(pixelValue,0.0,0.0,1.0);
         else gl_FragColor = vec4(0.0,0.0,abs(pixelValue),1.0);

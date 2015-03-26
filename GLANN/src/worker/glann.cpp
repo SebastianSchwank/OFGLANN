@@ -20,9 +20,6 @@ bool GLANN::initGLANN(int FboSize){
     mFBOSize = FboSize;
 
     fbo.allocate(FboSize,FboSize);
-    fbo.begin();
-        ofClear(0,0,0,0);
-    fbo.end();
 
     mCurrError.allocate(FboSize,1,OF_IMAGE_COLOR_ALPHA);
     mCurrInput.allocate(FboSize,1,OF_IMAGE_COLOR_ALPHA);
@@ -43,15 +40,14 @@ vector<float> GLANN::propergateFW(vector<float> input, ANNData* netToProcess){
     shader.begin();
 
         shader.setUniform1i("shaderMode",1);
+        shader.setUniform1i("size",mFBOSize);
 
         shader.setUniformTexture("weightsM",netToProcess->mWeights.getTextureReference(),1);
         shader.setUniformTexture("inputV",mCurrInput.getTextureReference(),2);
 
-        shader.setUniform1i("size",mFBOSize);
-
         fbo.begin();
             ofClear(0,0,0,0);
-            ofRect(0, 0, mFBOSize, mFBOSize);
+            netToProcess->mWeights.draw(0,0);
         fbo.end();
 
     shader.end();
@@ -75,7 +71,7 @@ vector<float> GLANN::propergateFW(vector<float> input, ANNData* netToProcess){
 
         fbo.begin();
             ofClear(0,0,0,0);
-            ofRect(0, 0, mFBOSize, mFBOSize);
+            netToProcess->mWeights.draw(0,0);
         fbo.end();
 
     shader.end();
@@ -127,29 +123,47 @@ vector<float> GLANN::propergateBW(vector<float> input, vector<float> error
     shader.end();
 */
     shader.begin();
-        //Set shader to propergate the Error Backwards through the net
+        //Set shader to calculate the current momentum
         shader.setUniform1i("shaderMode",4);
 
         shader.setUniformTexture("weightsM",netToProcess->mWeights.getTextureReference(),1);
-        shader.setUniformTexture("inputV",mCurrInput.getTextureReference(),2);
-        shader.setUniformTexture("errorV",mCurrError.getTextureReference(),3);
+        shader.setUniformTexture("momentumM",netToProcess->mMomentum.getTextureReference(),2);
+        shader.setUniformTexture("inputV",mCurrInput.getTextureReference(),3);
+        shader.setUniformTexture("errorV",mCurrError.getTextureReference(),4);
 
         shader.setUniform1i("size",mFBOSize);
         shader.setUniform1f("learningrate",netToProcess->getLearningRate());
+        shader.setUniform1f("momentum",netToProcess->getMomentum());
 
         fbo.begin();
             ofClear(0,0,0,0);
-            ofRect(0, 0, mFBOSize, mFBOSize);
+            netToProcess->mWeights.draw(0,0);
         fbo.end();
 
     shader.end();
 
     ofPixels fboPixels;
+    fbo.readToPixels(fboPixels,0);
+    netToProcess->mMomentum.setFromPixels(fboPixels);
+
+    shader.begin();
+        //Set shader to correct the weights with the momentum
+        shader.setUniform1i("shaderMode",5);
+
+        shader.setUniformTexture("weightsM",netToProcess->mWeights.getTextureReference(),1);
+        shader.setUniformTexture("momentumM",netToProcess->mMomentum.getTextureReference(),2);
+
+        shader.setUniform1i("size",mFBOSize);
+
+        fbo.begin();
+            ofClear(0,0,0,0);
+            netToProcess->mWeights.draw(0,0);
+        fbo.end();
+
+    shader.end();
 
     fbo.readToPixels(fboPixels,0);
-
     netToProcess->mWeights.setFromPixels(fboPixels);
-    //netToProcess->mWeights.draw(0,0);
 
     return input;
 }
