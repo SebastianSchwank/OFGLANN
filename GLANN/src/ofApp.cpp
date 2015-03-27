@@ -50,9 +50,7 @@ void ofApp::draw(){
     vector<float> target;
     target.clear();
     for(int i = 0; i < netSize; i++)
-        target.push_back(0.5);
-    target[pos % netSize] = 0.999;
-    target[pos-1 % netSize] = 0.999;
+        target.push_back((1.0+sin(((pos % netSize)/5.0)*i/netSize))/2.1);
 
     float sumQuadError = 0.0;
     vector<float> error;

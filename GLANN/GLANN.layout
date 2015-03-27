@@ -3,7 +3,7 @@
 	<ActiveTarget name="release" />
 	<File name="bin\data\shader.frag" open="1" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2423" topLine="102" />
+			<Cursor1 position="1434" topLine="54" />
 		</Cursor>
 	</File>
 	<File name="bin\data\shader.vert" open="1" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -13,7 +13,7 @@
 	</File>
 	<File name="src\dataModel\anndata.cpp" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="482" topLine="6" />
+			<Cursor1 position="480" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="src\dataModel\anndata.h" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -31,6 +31,11 @@
 			<Cursor1 position="237" topLine="0" />
 		</Cursor>
 	</File>
+	<File name="..\..\..\..\Desktop\Programmierung\of_v0.8.4_win_cb_release\addons\ofxGui\src\ofxBaseGui.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="7431" topLine="339" />
+		</Cursor>
+	</File>
 	<File name="src\main.cpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="413" topLine="0" />
@@ -38,7 +43,7 @@
 	</File>
 	<File name="src\ofApp.cpp" open="1" top="1" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2172" topLine="3" />
+			<Cursor1 position="1238" topLine="45" />
 		</Cursor>
 	</File>
 	<File name="src\ofApp.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -48,17 +53,12 @@
 	</File>
 	<File name="src\worker\glann.cpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="4931" topLine="146" />
+			<Cursor1 position="1355" topLine="45" />
 		</Cursor>
 	</File>
 	<File name="src\worker\glann.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="960" topLine="28" />
-		</Cursor>
-	</File>
-	<File name="..\..\..\..\Desktop\Programmierung\of_v0.8.4_win_cb_release\addons\ofxGui\src\ofxBaseGui.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="7431" topLine="339" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>
