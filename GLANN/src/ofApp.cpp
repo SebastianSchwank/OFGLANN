@@ -12,7 +12,7 @@ void ofApp::setup(){
     mWorker = new GLANN();
     mWorker->initGLANN(netSize);
 
-    mNetwork = new ANNData( netSize, 0.1, 0.5, 0.01);
+    mNetwork = new ANNData( netSize, 0.2, 1.0, 0.00);
 
     frameCounter = 0;
     train = true;
@@ -31,15 +31,24 @@ void ofApp::draw(){
     int pos = frameCounter;
 
     vector<float> input;
+    input.clear();
     for(int i = 0; i < netSize; i++)
-        input.push_back((1.0+sinf(((pos % netSize)/5.0)*i/netSize))/2.1);
+        //input.push_back((1.0+sin(((pos % netSize)/5.0)*i/netSize))/2.1);
+        input.push_back(0.0);
 
     //Don't forget the bias !
     input[0] = 0.9999;
 
-    vector<float> output = mWorker->propergateFW(input,mNetwork);
+    input[pos % netSize] = 0.999;
+    //input[pos-1 % netSize] = 0.999;
+
+
+    vector<float> output;
+    output.clear();
+    output = mWorker->propergateFW(input,mNetwork);
 
     vector<float> target;
+    target.clear();
     for(int i = 0; i < netSize; i++)
         target.push_back(0.5);
     target[pos % netSize] = 0.999;
@@ -47,6 +56,7 @@ void ofApp::draw(){
 
     float sumQuadError = 0.0;
     vector<float> error;
+    error.clear();
     for(int i = 0; i < netSize; i++){
         error.push_back(4.0*(target[i]-output[i])*output[i]*(1.0-output[i]));
         sumQuadError += (target[i]-output[i])*(target[i]-output[i]);

@@ -19,7 +19,7 @@ bool GLANN::initGLANN(int FboSize){
 
     mFBOSize = FboSize;
 
-    fbo.allocate(FboSize,FboSize);
+    fbo.allocate(FboSize,FboSize,GL_RGBA);
 
     mCurrError.allocate(FboSize,1,OF_IMAGE_COLOR_ALPHA);
     mCurrInput.allocate(FboSize,1,OF_IMAGE_COLOR_ALPHA);
@@ -51,6 +51,8 @@ vector<float> GLANN::propergateFW(vector<float> input, ANNData* netToProcess){
         fbo.end();
 
     shader.end();
+
+    //fbo.draw(0,0);
 
     ofPixels MulMartix;
     fbo.readToPixels(MulMartix);

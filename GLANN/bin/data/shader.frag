@@ -44,8 +44,8 @@ float sigmoid(float x){
 }
 //Bcs. of 1.0 can't be packed (BUG) i've to clip before
 float clip(float val){
-    if (val >= 1.0) return 0.9999;
-    if (val <= 0.0) return 0.0000;
+    if (val >= 1.0) return 0.99;
+    if (val <= 0.0) return 0.00;
     return val;
 }
 
