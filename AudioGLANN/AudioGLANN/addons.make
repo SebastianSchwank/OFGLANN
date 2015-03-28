@@ -1,4 +1,4 @@
 ofxGui
 ofxNetwork
 ofxXmlSettings
-ofxAudioDecoder
+ofxMaxim

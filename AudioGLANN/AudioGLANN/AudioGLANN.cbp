@@ -68,6 +68,9 @@
 			<Add directory="..\..\..\..\..\Desktop\Programmierung\of_v0.8.4_win_cb_release\libs\poco\include" />
 			<Add directory="..\..\..\..\..\Desktop\Programmierung\of_v0.8.4_win_cb_release\libs\tess2\include" />
 			<Add directory="..\..\..\..\..\Desktop\Programmierung\of_v0.8.4_win_cb_release\libs\cairo\include\cairo" />
+			<Add directory="src" />
+			<Add directory="src\dataModel" />
+			<Add directory="src\worker" />
 			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons/ofxGui/libs" />
 			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons/ofxGui/src" />
 			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxGui\src" />
@@ -78,9 +81,8 @@
 			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons/ofxXmlSettings/src" />
 			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxXmlSettings\libs" />
 			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxXmlSettings\src" />
-			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons/ofxAudioDecoder/libs" />
-			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons/ofxAudioDecoder/src" />
-			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxAudioDecoder\src" />
+			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons/ofxMaxim/libs" />
+			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons/ofxMaxim/src" />
 		</Compiler>
 		<Linker>
 			<Add library="..\..\..\..\..\Desktop\Programmierung\of_v0.8.4_win_cb_release\libs\FreeImage\lib\win_cb\FreeImage.lib" />
@@ -145,6 +147,24 @@
 			<debugger />
 			<envvars />
 		</Extensions>
+		<Unit filename="src\dataModel\anndata.cpp">
+			<Option virtualFolder="src\dataModel" />
+		</Unit>
+		<Unit filename="src\dataModel\anndata.h">
+			<Option virtualFolder="src\dataModel" />
+		</Unit>
+		<Unit filename="src\glanntools.cpp">
+			<Option virtualFolder="src" />
+		</Unit>
+		<Unit filename="src\glanntools.h">
+			<Option virtualFolder="src" />
+		</Unit>
+		<Unit filename="src\worker\glann.cpp">
+			<Option virtualFolder="src\worker" />
+		</Unit>
+		<Unit filename="src\worker\glann.h">
+			<Option virtualFolder="src\worker" />
+		</Unit>
 		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxGui\src\ofxBaseGui.cpp">
 			<Option virtualFolder="addons\ofxGui\src" />
 		</Unit>
@@ -243,9 +263,6 @@
 		</Unit>
 		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxXmlSettings\libs\tinyxmlparser.cpp">
 			<Option virtualFolder="addons\ofxXmlSettings\libs" />
-		</Unit>
-		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxAudioDecoder\src\ofxAudioDecoder.h">
-			<Option virtualFolder="addons\ofxAudioDecoder\src" />
 		</Unit>
 	</Project>
 </CodeBlocks_project_file>
