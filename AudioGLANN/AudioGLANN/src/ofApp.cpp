@@ -16,9 +16,6 @@ void ofApp::setup(){
 
     frameCounter = 0;
     train = true;
-
-    audioInput.load("HI.wav");
-    audioTarget.load("HO.wav");
 }
 
 //--------------------------------------------------------------

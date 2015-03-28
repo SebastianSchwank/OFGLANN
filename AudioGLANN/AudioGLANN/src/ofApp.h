@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxMaxim.h"
 
 #include "dataModel/anndata.h"
 #include "worker/glann.h"
@@ -32,8 +31,5 @@ class ofApp : public ofBaseApp{
         bool train;
         vector<float> globError;
         vector<float> periodicalError;
-
-        ofxAudioDecoder audioInput;
-        ofxAudioDecoder audioTarget;
 
 };
