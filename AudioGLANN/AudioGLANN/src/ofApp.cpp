@@ -8,14 +8,22 @@ void ofApp::setup(){
     ofSetFrameRate(60);
     glEnable(GL_DEPTH_TEST);
 
-    netSize = 128;
+    netSize = 512;
     mWorker = new GLANN();
     mWorker->initGLANN(netSize);
 
-    mNetwork = new ANNData( netSize, 0.2, 1.0, 0.00);
+    mNetwork = new ANNData( netSize, 0.2, 0.1, 0.00);
 
     frameCounter = 0;
     train = true;
+
+    signalInput.load("HI_twice.wav");
+    signalTarget.load("HO_twice.wav");
+
+    signalInput.normalise();
+    signalTarget.normalise();
+
+    outfile = new std::ofstream("signalOut.bin", std::ios::binary);
 }
 
 //--------------------------------------------------------------
@@ -26,20 +34,13 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-    frameCounter++;
-
-    int pos = frameCounter;
-
     vector<float> input;
     input.clear();
     for(int i = 0; i < netSize; i++)
-        //input.push_back((1.0+sin(((pos % netSize)/5.0)*i/netSize))/2.1);
-        input.push_back(0.0);
+        input.push_back((signalInput.play()+1.0)/2.0);
 
     //Don't forget the bias !
     input[0] = 0.9999;
-
-    input[pos % netSize] = 0.999;
     //input[pos-1 % netSize] = 0.999;
 
 
@@ -50,19 +51,19 @@ void ofApp::draw(){
     vector<float> target;
     target.clear();
     for(int i = 0; i < netSize; i++)
-        target.push_back((1.0+sin(((pos % netSize)/5.0)*i/netSize))/2.1);
+        target.push_back((signalTarget.play()+1.0)/2.0);
 
     float sumQuadError = 0.0;
     vector<float> error;
     error.clear();
     for(int i = 0; i < netSize; i++){
+        if(!train) outputF.push_back(output[i]);
         error.push_back(4.0*(target[i]-output[i])*output[i]*(1.0-output[i]));
         sumQuadError += (target[i]-output[i])*(target[i]-output[i]);
     }
     globError.push_back(sumQuadError);
 
     if(train) mWorker->propergateBW(input,error,mNetwork);
-
 
     mWorker->draw(mNetwork);
 
@@ -84,10 +85,10 @@ void ofApp::draw(){
 
     ofSetColor(255,255,0);
     for(int i = 1; i < periodicalError.size(); i++)
-        ofLine(netSize*2+(i%netSize),periodicalError[i-1],
-               netSize*2+(i%netSize+1),periodicalError[i]);
+        ofLine(netSize*2+(i%netSize),periodicalError[i-1]/2,
+               netSize*2+(i%netSize+1),periodicalError[i]/2);
 
-    if(frameCounter % netSize == 0){
+    if(frameCounter > signalInput.length){
             frameCounter = 0;
             float SumPerError = 0.0;
             for(int i = 1; i < globError.size(); i++)
@@ -96,13 +97,27 @@ void ofApp::draw(){
             cout << SumPerError << "\n";
             globError.clear();
             periodicalError.push_back(SumPerError);
+
+            if(!train){
+                outfile->write((char*) &outputF[0], sizeof(float)*signalInput.length);
+                outputF.clear();
+                cout << "Outputfile written." ;
+                ofBaseApp::exit();
+            }
     }
+
+    frameCounter+=netSize;
 
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     train = !train;
+    signalTarget.setPosition(0.0);
+    signalInput.setPosition(0.0);
+    frameCounter = 0;
+
+    cout << "Training stopped \n";
 }
 
 //--------------------------------------------------------------

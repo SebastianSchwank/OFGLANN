@@ -1,6 +1,10 @@
 #pragma once
 
+#include <fstream>
+
 #include "ofMain.h"
+
+#include "ofxMaxim.h"
 
 #include "dataModel/anndata.h"
 #include "worker/glann.h"
@@ -26,10 +30,16 @@ class ofApp : public ofBaseApp{
         GLANN*      mWorker;
         ANNData*    mNetwork;
 
-        int frameCounter;
+        long frameCounter;
         int netSize;
         bool train;
         vector<float> globError;
         vector<float> periodicalError;
+
+        ofxMaxiSample signalInput;
+        ofxMaxiSample signalTarget;
+
+        std::ofstream *outfile;
+        vector<float> outputF;
 
 };

@@ -2,7 +2,7 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="AudioGLANN" />
+		<Option title="AUDIOGLANN" />
 		<Option makefile="makefile" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
@@ -78,9 +78,10 @@
 			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons/ofxXmlSettings/src" />
 			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxXmlSettings\libs" />
 			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxXmlSettings\src" />
-			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons/ofxAudioDecoder/libs" />
-			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons/ofxAudioDecoder/src" />
-			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxAudioDecoder\src" />
+			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons/ofxMaxim/libs" />
+			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons/ofxMaxim/src" />
+			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs" />
+			<Add directory="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\src" />
 		</Compiler>
 		<Linker>
 			<Add library="..\..\..\..\..\Desktop\Programmierung\of_v0.8.4_win_cb_release\libs\FreeImage\lib\win_cb\FreeImage.lib" />
@@ -244,8 +245,59 @@
 		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxXmlSettings\libs\tinyxmlparser.cpp">
 			<Option virtualFolder="addons\ofxXmlSettings\libs" />
 		</Unit>
-		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxAudioDecoder\src\ofxAudioDecoder.h">
-			<Option virtualFolder="addons\ofxAudioDecoder\src" />
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\src\ofxMaxim.h">
+			<Option virtualFolder="addons\ofxMaxim\src" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\fft.cpp">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\fft.h">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\maxiAtoms.cpp">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\maxiAtoms.h">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\maxiBark.cpp">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\maxiBark.h">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\maxiFFT.cpp">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\maxiFFT.h">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\maxiGrains.cpp">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\maxiGrains.h">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\maxiMFCC.cpp">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\maxiMFCC.h">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\maximilian.cpp">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\maximilian.h">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\sineTable.h">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\stb_vorbis.c">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
+		</Unit>
+		<Unit filename="../../../../../Desktop/Programmierung/of_v0.8.4_win_cb_release/addons\ofxMaxim\libs\stb_vorbis.h">
+			<Option virtualFolder="addons\ofxMaxim\libs" />
 		</Unit>
 	</Project>
 </CodeBlocks_project_file>
