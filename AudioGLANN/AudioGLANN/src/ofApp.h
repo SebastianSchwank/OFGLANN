@@ -27,19 +27,29 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
     private:
+        bool train(int stepsize);
+        bool morph();
+
+
         GLANN*      mWorker;
         ANNData*    mNetwork;
 
+        vector<float> input;
+        vector<float> output;
+        vector<float> target;
+        vector<float> error;
+
         long frameCounter;
         int netSize;
-        bool train;
+        bool trainNet;
         vector<float> globError;
         vector<float> periodicalError;
 
         ofxMaxiSample signalInput;
         ofxMaxiSample signalTarget;
+        vector<float> audioInputF;
+        vector<float> audioTargetF;
 
-        std::ofstream *outfile;
         vector<float> outputF;
 
 };
