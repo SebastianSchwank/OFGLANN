@@ -12,8 +12,8 @@ void ofApp::setup(){
     mWorker = new GLANN();
     mWorker->initGLANN(netSize);
 
-    mNetwork = new ANNData( netSize, 0.1, 0.05, 0.01);
-    //mNetwork->mWeights.loadImage("currentProjectsOutfile.png");
+    mNetwork = new ANNData( netSize, 0.1, 0.2, 0.01);
+    mNetwork->mWeights.loadImage("currentProjectsOutfile.png");
 
     frameCounter = 0;
 
@@ -28,6 +28,8 @@ void ofApp::setup(){
         audioInputF.push_back((signalInput.play()+1.0)/2.0);
         audioTargetF.push_back((signalTarget.play()+1.0)/2.0);
     }
+
+    training = true;
 }
 
 bool ofApp::train(int stepsize){
@@ -52,6 +54,7 @@ bool ofApp::train(int stepsize){
         for(int i = 0; i < netSize; i++){
             error.push_back(4.0*(target[i]-output[i])*output[i]*(1.0-output[i]));
             sumQuadError += (target[i]-output[i])*(target[i]-output[i]);
+            outputF.push_back((output[i]-1.0)*2.0);
         }
         globError.push_back(sumQuadError);
 
@@ -63,10 +66,11 @@ bool ofApp::train(int stepsize){
                 for(int i = 1; i < globError.size(); i++)
                     SumPerError += globError[i];
 
-                cout << SumPerError << "\n";
+                cout << "\n" << SumPerError << "\n";
                 globError.clear();
                 periodicalError.push_back(SumPerError);
                 frameCounter = 0;
+
                 return false;
         }
 
@@ -100,26 +104,30 @@ bool ofApp::morph(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-
-    if(train(128)){
+    if(training){
+        if(train(netSize)){
             cout << "\r" << 100.0 * (float)frameCounter/signalInput.length;
-            if(frameCounter % (10 * 128) == 0){
-                mNetwork->mWeights.saveImage("currentProjectsOutfile.png");
-                cout << "Output Weights-Image written." ;
-            }
+        }else{
+            cout << "\n Training cycle passed \n";
+            mNetwork->mWeights.saveImage("currentProjectsOutfile.png");
+            cout << "Output Weights-Image written." ;
+            signalTarget.setPosition(0.0);
+            signalInput.setPosition(0.0);
+            frameCounter = 0;
+            cout << "Training sucessfull ! \n";
+            training = false;
+        }
 
     }else{
-        signalTarget.setPosition(0.0);
-        signalInput.setPosition(0.0);
-        frameCounter = 0;
-
-        cout << "Training sucessfull ! \n";
 
         while(morph());
 
         cout << "Morph sucessfull ! \n";
+        training = true;
 
-        while(true);
+        signalTarget.setPosition(0.0);
+        signalInput.setPosition(0.0);
+        frameCounter = 0;
     }
 
 }

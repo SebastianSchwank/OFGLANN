@@ -30,6 +30,7 @@ class ofApp : public ofBaseApp{
         bool train(int stepsize);
         bool morph();
 
+        bool training;
 
         GLANN*      mWorker;
         ANNData*    mNetwork;
