@@ -79,8 +79,13 @@ void main()
     //Backpropagate Error
     if(shaderMode == 3){
 
-        if(gl_FragCoord.y < 1.0){
-
+        if(gl_FragCoord.x <= 1.0){
+            float sumError = 0.0;
+            for(float i = 1.0/float(size*2); i <= 1.0; i+= 1.0/float(size)){
+                sumError += map(unpack(texture(weightsM,vec2(i,TexCoord.y)))) * map(unpack(texture(errorV,vec2(i,0.0))));
+            }
+            float inputLayer = unpack(texture(weightsM,vec2(TexCoord.y,0.0)));
+            gl_FragColor = pack(clip(unmap(sumError * inputLayer * (1.0-inputLayer))));
         }
 
     }

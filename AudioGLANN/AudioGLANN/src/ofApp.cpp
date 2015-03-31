@@ -12,23 +12,22 @@ void ofApp::setup(){
     mWorker = new GLANN();
     mWorker->initGLANN(netSize);
 
-    mNetwork = new ANNData( netSize, 0.1, 0.2, 0.01);
-    mNetwork->mWeights.loadImage("currentProjectsOutfile.png");
+    mLayer1 = new ANNData( netSize, 0.3, 0.04, 0.01);
+    mLayer2 = new ANNData( netSize, 0.3, 0.04, 0.01);
 
-    frameCounter = 0;
-
-    signalInput.load("Input_BecauseIBelive.wav");
+    signalInput.load("Input_Sonnentanz.wav");
     //signalInput.load("AllesGute.wav");
-    signalTarget.load("Target_BecauseIBelive.wav");
+    signalTarget.load("Target_Sonnentanz.wav");
 
-    signalInput.normalise();
-    signalTarget.normalise();
+    signalInput.normalise(1.0);
+    signalTarget.normalise(1.0);
 
     for(int i = 0; i < signalInput.length; i++){
         audioInputF.push_back((signalInput.play()+1.0)/2.0);
         audioTargetF.push_back((signalTarget.play()+1.0)/2.0);
     }
 
+    frameCounter = 0;
     training = true;
 }
 
@@ -42,8 +41,11 @@ bool ofApp::train(int stepsize){
         input[0] = 0.9999;
         //input[pos-1 % netSize] = 0.999;
 
+        inputHiddenLayer.clear();
+        inputHiddenLayer = mWorker->propergateFW(input,mLayer1);
+
         output.clear();
-        output = mWorker->propergateFW(input,mNetwork);
+        output = mWorker->propergateFW(inputHiddenLayer,mLayer2);
 
         target.clear();
         for(int i = 0; i < netSize; i++)
@@ -54,11 +56,12 @@ bool ofApp::train(int stepsize){
         for(int i = 0; i < netSize; i++){
             error.push_back(4.0*(target[i]-output[i])*output[i]*(1.0-output[i]));
             sumQuadError += (target[i]-output[i])*(target[i]-output[i]);
-            outputF.push_back((output[i]-1.0)*2.0);
+            //outputF.push_back((output[i]-1.0)*2.0);
         }
         globError.push_back(sumQuadError);
 
-        mWorker->propergateBW(input,error,mNetwork);
+        vector<float> hiddenError = mWorker->propergateBW(inputHiddenLayer,error,mLayer2);
+        mWorker->propergateBW(input,hiddenError,mLayer1);
 
         if(frameCounter >= signalInput.length - 2 * netSize){
                 frameCounter = 0;
@@ -66,7 +69,7 @@ bool ofApp::train(int stepsize){
                 for(int i = 1; i < globError.size(); i++)
                     SumPerError += globError[i];
 
-                cout << "\n" << SumPerError << "\n";
+                cout << "\n Global Error over all samples: " << SumPerError << "\n";
                 globError.clear();
                 periodicalError.push_back(SumPerError);
                 frameCounter = 0;
@@ -88,29 +91,43 @@ bool ofApp::morph(){
         input[0] = 0.9999;
         //input[pos-1 % netSize] = 0.999;
 
-        output.clear();
-        output = mWorker->propergateFW(input,mNetwork);
+        inputHiddenLayer.clear();
+        inputHiddenLayer = mWorker->propergateFW(input,mLayer1);
 
-        for(int i = 0; i < netSize; i++) outputF.push_back(output[i]);
+        output.clear();
+        output = mWorker->propergateFW(inputHiddenLayer,mLayer2);
+
+        for(int i = 0; i < netSize; i++)
+            outputF.push_back((output[i]-1.0)*2.0);
 
         frameCounter += netSize;
+        cout << "\r" << 100.0 * (float)frameCounter/signalInput.length;
 
         if(frameCounter >= signalInput.length - 2 * netSize){
+            //Have to add supersampling here
             std::ofstream ofile("signalOut.bin", std::ios::binary);
-            ofile.write((char*) &outputF[0], sizeof(float)*audioInputF.size());
+            ofile.write((char*) &outputF[0], sizeof(float)*outputF.size());
+            ofile.close();
+            cout << "signalOut.bin written \n";
             return false;
         }
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+
     if(training){
-        if(train(netSize)){
-            cout << "\r" << 100.0 * (float)frameCounter/signalInput.length;
+        if(train(netSize/3)){
+            cout << "\r Training progress: "
+            << 100.0 * (float)frameCounter/signalInput.length;
         }else{
             cout << "\n Training cycle passed \n";
-            mNetwork->mWeights.saveImage("currentProjectsOutfile.png");
-            cout << "Output Weights-Image written." ;
+            mLayer1->mWeights.saveImage("currentProjectsOutfile1.png");
+            mLayer2->mWeights.saveImage("currentProjectsOutfile2.png");
+            cout << "Output Weights-Image written.\n" ;
+            mWorker->draw(mLayer1)->saveImage("currentProjectPreview1.png");
+            mWorker->draw(mLayer2)->saveImage("currentProjectPreview2.png");
+            cout << "Preview Weights written.\n";
             signalTarget.setPosition(0.0);
             signalInput.setPosition(0.0);
             frameCounter = 0;
@@ -120,14 +137,16 @@ void ofApp::update(){
 
     }else{
 
-        while(morph());
+        if(morph()){}
+        else{
 
-        cout << "Morph sucessfull ! \n";
-        training = true;
+            cout << "Morph sucessfull ! \n";
 
-        signalTarget.setPosition(0.0);
-        signalInput.setPosition(0.0);
-        frameCounter = 0;
+            signalTarget.setPosition(0.0);
+            signalInput.setPosition(0.0);
+            frameCounter = 0;
+            training = true;
+        }
     }
 
 }
@@ -135,33 +154,35 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-        mWorker->draw(mNetwork);
+        //mWorker->draw(mNetwork);
+        mWorker->draw(mLayer1)->draw(0,256);
+        mWorker->draw(mLayer2)->draw(netSize,256);
 
         ofSetColor(255);
-        ofDrawBitmapString("Input",netSize,50);
+        ofDrawBitmapString("Input",0,50);
         for(int i = 1; i < input.size(); i++)
-            ofLine(netSize+i,input[i-1]*50+25,netSize+i+1,input[i]*50+25);
+            ofLine(i,input[i-1]*50+25,i+1,input[i]*50+25);
 
        ofSetColor(255,0,0);
-       ofDrawBitmapString("Output",netSize,75);
+       ofDrawBitmapString("Output",0,75);
         for(int i = 1; i < output.size(); i++)
-            ofLine(netSize+i,output[i-1]*50+50,netSize+i+1,output[i]*50+50);
+            ofLine(i,output[i-1]*50+50,i+1,output[i]*50+50);
 
         ofSetColor(0,255,0);
-        ofDrawBitmapString("Target",netSize,100);
+        ofDrawBitmapString("Target",0,100);
         for(int i = 1; i < target.size(); i++)
-            ofLine(netSize+i,target[i-1]*50+75,netSize+i+1,target[i]*50+75);
+            ofLine(i,target[i-1]*50+75,i+1,target[i]*50+75);
 
         ofSetColor(255,0,255);
-        ofDrawBitmapString("Error",netSize,150);
+        ofDrawBitmapString("Error",0,150);
         for(int i = 1; i < error.size(); i++)
-            ofLine(netSize+i,error[i-1]*50+125,netSize+i+1,error[i]*50+125);
-
+            ofLine(i,error[i-1]*50+125,i+1,error[i]*50+125);
+/*
         ofSetColor(255,255,0);
         for(int i = 1; i < periodicalError.size(); i++)
             ofLine(netSize*2+(i%netSize),periodicalError[i-1]/2,
                    netSize*2+(i%netSize+1),periodicalError[i]/2);
-
+*/
 }
 
 //--------------------------------------------------------------

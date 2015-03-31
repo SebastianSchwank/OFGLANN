@@ -33,13 +33,17 @@ class ofApp : public ofBaseApp{
         bool training;
 
         GLANN*      mWorker;
-        ANNData*    mNetwork;
+        ANNData*    mLayer1;
+        ANNData*    mLayer2;
 
         vector<float> input;
+        vector<float> inputHiddenLayer;
         vector<float> output;
         vector<float> target;
+        vector<float> errorHiddenLayer;
         vector<float> error;
 
+        int supersampling;
         long frameCounter;
         int netSize;
         bool trainNet;
