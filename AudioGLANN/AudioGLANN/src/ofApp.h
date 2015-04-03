@@ -27,7 +27,7 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
     private:
-        bool train(int stepsize);
+        bool train();
         bool morph();
 
         bool training;
@@ -54,7 +54,5 @@ class ofApp : public ofBaseApp{
         ofxMaxiSample signalTarget;
         vector<float> audioInputF;
         vector<float> audioTargetF;
-
-        vector<float> outputF;
 
 };

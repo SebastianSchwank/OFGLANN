@@ -84,7 +84,7 @@ void main()
             for(float i = 1.0/float(size*2); i <= 1.0; i+= 1.0/float(size)){
                 sumError += map(unpack(texture(weightsM,vec2(i,TexCoord.y)))) * map(unpack(texture(errorV,vec2(i,0.0))));
             }
-            float inputLayer = unpack(texture(weightsM,vec2(TexCoord.y,0.0)));
+            float inputLayer = unpack(texture(inputV,vec2(TexCoord.y,0.0)));
             gl_FragColor = pack(clip(unmap(sumError * inputLayer * (1.0-inputLayer))));
         }
 
@@ -115,6 +115,11 @@ void main()
 
         vec4 momentumColor = texture(momentumM,TexCoord.xy);
         float momentumValue = map(unpack(momentumColor));
+
+        //Adding tension term here to keep the weight down becs. it's clamped between -1...1
+        weightsValue = weightsValue * (1.0- abs(weightsValue*weightsValue*weightsValue*
+                                                weightsValue*weightsValue*weightsValue*
+                                                weightsValue*weightsValue*weightsValue));
 
         gl_FragColor = pack(clip(unmap(weightsValue + momentumValue)));
     }
