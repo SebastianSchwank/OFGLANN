@@ -23,7 +23,6 @@ bool GLANN::initGLANN(int FboSize){
 
     mCurrError.allocate(FboSize,1,OF_IMAGE_COLOR_ALPHA);
     mCurrInput.allocate(FboSize,1,OF_IMAGE_COLOR_ALPHA);
-    mCurrPreview.allocate(FboSize,FboSize,OF_IMAGE_COLOR_ALPHA);
 }
 
 //This function propergates an input Vector through a given ANN returning
@@ -60,7 +59,6 @@ vector<float> GLANN::propergateFW(vector<float> input, ANNData* netToProcess){
 
     ofImage MatrixImage;
     MatrixImage.setFromPixels(MulMartix);
-    MatrixImage.reloadTexture();
     MatrixImage.update();
 
     shader.begin();
@@ -109,7 +107,6 @@ vector<float> GLANN::propergateBW(vector<float> input, vector<float> error
     mCurrError.reloadTexture();
     mCurrError.update();
 
-
     shader.begin();
         //Set shader to propergate the Error Backwards through the net
         shader.setUniform1i("shaderMode",3);
@@ -127,12 +124,12 @@ vector<float> GLANN::propergateBW(vector<float> input, vector<float> error
 
     shader.end();
 
-    ofPixels Output;
-    fbo.readToPixels(Output);
+    ofPixels fboPixels;
+    fbo.readToPixels(fboPixels,0);
 
-    vector<float> propError;
+    vector<float> backpropError;
     for(int i = 0; i < mFBOSize; i++)
-        propError.push_back((2.0*GLANNTools::unpack(Output.getColor(0,i)))-1.0);
+        backpropError.push_back((2.0*GLANNTools::unpack(fboPixels.getColor(0,i)))-1.0);
 
     shader.begin();
         //Set shader to calculate the current momentum
@@ -154,10 +151,9 @@ vector<float> GLANN::propergateBW(vector<float> input, vector<float> error
 
     shader.end();
 
-    ofPixels fboPixels;
+    fboPixels.clear();
     fbo.readToPixels(fboPixels,0);
     netToProcess->mMomentum.setFromPixels(fboPixels);
-    netToProcess->mMomentum.update();
 
     shader.begin();
         //Set shader to correct the weights with the momentum
@@ -175,14 +171,16 @@ vector<float> GLANN::propergateBW(vector<float> input, vector<float> error
 
     shader.end();
 
+    fboPixels.clear();
     fbo.readToPixels(fboPixels,0);
     netToProcess->mWeights.setFromPixels(fboPixels);
-    netToProcess->mWeights.update();
 
-    return propError;
+    return backpropError;
 }
 
-ofImage* GLANN::draw(ANNData* netToProcess){
+void GLANN::draw(ANNData* netToProcess){
+
+    ofClear(126, 126, 126, 126);
 
     shader.begin();
 
@@ -191,19 +189,7 @@ ofImage* GLANN::draw(ANNData* netToProcess){
 
         shader.setUniformTexture("weightsM",netToProcess->mWeights.getTextureReference(),1);
 
-        fbo.begin();
-            ofClear(0,0,0,0);
-            netToProcess->mWeights.draw(0,0);
-        fbo.end();
+        netToProcess->mWeights.draw(0,0);
 
     shader.end();
-
-    ofPixels fboPixels;
-    fbo.readToPixels(fboPixels,0);
-
-    mCurrPreview.setFromPixels(fboPixels);
-    mCurrPreview.reloadTexture();
-    mCurrPreview.update();
-
-    return &mCurrPreview;
 }

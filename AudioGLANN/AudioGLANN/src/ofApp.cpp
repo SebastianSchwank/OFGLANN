@@ -4,16 +4,15 @@
 void ofApp::setup(){
 
     ofDisableArbTex();
-    ofEnableAlphaBlending();
     ofSetFrameRate(60);
-    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_DEPTH_TEST);
 
-    netSize = 512;
+    netSize = 32;
     mWorker = new GLANN();
     mWorker->initGLANN(netSize);
 
-    mLayer1 = new ANNData( netSize, 0.1, 0.2, 0.03);
-    //mLayer2 = new ANNData( netSize, 0.1, 0.1, 0.00);
+    mLayer1 = new ANNData( netSize, 0.2, 0.2, 0.00);
+    //mLayer2 = new ANNData( netSize, 0.1, 0.2, 0.03);
 
     //mLayer1->mWeights.loadImage("currentProjectsOutfile1.png");
     //mLayer2->mWeights.loadImage("currentProjectsOutfile2.png");
@@ -32,10 +31,10 @@ void ofApp::setup(){
 */
     for(int j = 0; j < netSize; j++){
         for(int i = 0; i < netSize; i++){
-            audioInputF.push_back(1.0+sin( ((1.0*i)/netSize) * 2 * 3.14159265359 * (0.05*j+1.0))/2.0);
-            audioTargetF.push_back(0.5);
+            audioTargetF.push_back((1.0+sin( ((1.0*i)/netSize) * 2 * 3.14159265359 * (0.05*j+1.0)))/2.0);
+            audioInputF.push_back(0.5);
         }
-        audioTargetF[j+j*netSize] = 0.99;
+        audioInputF[j+j*netSize] = 0.999;
     }
 
     frameCounter = 0;
@@ -44,21 +43,10 @@ void ofApp::setup(){
 
 bool ofApp::train(){
 
-        input.clear();
-        for(int i = 0; i < netSize; i++)
-            input.push_back(audioInputF[i+frameCounter]);
-
-        //Don't forget the bias !
-        input[0] = 0.9999;
-
         target.clear();
         for(int i = 0; i < netSize; i++)
             target.push_back(audioTargetF[i+frameCounter]);
-/*
-        inputHiddenLayer.clear();
-        for(int i = 0; i < netSize; i++)
-            inputHiddenLayer.push_back(outputL1F[i+frameCounter]);
-*/
+
         float sumQuadError = 0.0;
         error.clear();
         for(int i = 0; i < netSize; i++){
@@ -69,6 +57,7 @@ bool ofApp::train(){
         globError.push_back(sumQuadError/netSize);
 
         mWorker->propergateBW(input,error,mLayer1);
+        //mWorker->propergateBW(input,hidenError,mLayer1);
 
         return true;
 }
@@ -80,21 +69,17 @@ bool ofApp::morph(){
             input.push_back(audioInputF[i+frameCounter]);
 
         //Don't forget the bias !
-        input[0] = 0.9999;
+        input[0] = 0.999;
+
+        //inputHiddenLayer.clear();
+        //inputHiddenLayer = mWorker->propergateFW(input,mLayer1);
+
+        //Don't forget the bias !
+        //inputHiddenLayer[0] = 0.999;
 
         output.clear();
         output = mWorker->propergateFW(input,mLayer1);
 
-/*
-        if(frameCounter >= audioInputF.size() - 2 * netSize){
-            //Have to add supersampling here
-            std::ofstream ofile("signalOut.bin", std::ios::binary);
-            ofile.write((char*) &outputF[0], sizeof(float)*outputF.size());
-            ofile.close();
-            cout << "signalOut.bin written \n";
-            return false;
-        }
-*/
         return true;
 }
 
@@ -113,8 +98,10 @@ void ofApp::update(){
         if(frameCounter >= audioInputF.size()){
             cout << "Training Lesson complete -> redo now !\n";
             mLayer1->mWeights.saveImage("currentProjectsOutfile1.png");
+            //mLayer2->mWeights.saveImage("currentProjectsOutfile2.png");
             cout << "Output Weights-Image written.\n" ;
             mWorker->draw(mLayer1)->saveImage("currentProjectPreview1.png");
+            //mWorker->draw(mLayer2)->saveImage("currentProjectPreview2.png");
             cout << "Preview Weights written.\n";
             signalTarget.setPosition(0.0);
             signalInput.setPosition(0.0);
@@ -143,8 +130,9 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-        //mWorker->draw(mNetwork);
+        ofClear(126);
         mWorker->draw(mLayer1)->draw(0,256);
+        mLayer1->mMomentum.draw(0,256);
 
         ofSetColor(255);
         ofDrawBitmapString("Input",0,50);
@@ -175,6 +163,7 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+    training = !training;
 }
 
 //--------------------------------------------------------------
