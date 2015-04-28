@@ -44,8 +44,8 @@ float sigmoid(float x){
 }
 //Bcs. of 1.0 can't be packed (BUG) i've to clip before
 float clip(float val){
-    if (val >= 1.0) return 0.999;
-    if (val <= 0.0) return 0.000;
+    if (val >= 1.0) return 0.99;
+    if (val <= 0.0) return 0.00;
     return val;
 }
 
@@ -81,17 +81,30 @@ void main()
 
         if(gl_FragCoord.x <= 1.0){
             float sumError = 0.0;
-            for(float i = 1.0/float(size*2); i <= 1.0; i+= 1.0/float(size)){
-                sumError += map(unpack(texture(weightsM,vec2(i,TexCoord.y)))) * map(unpack(texture(errorV,vec2(i,0.0))));
+            for(float i = 1.0/float(size*2); i < 1.0; i+= 1.0/float(size)){
+                vec4 weightsColor = texture(weightsM,vec2(i,TexCoord.y));
+                float weightsValue = map(unpack(weightsColor));
+
+                vec4 errorColor = texture(errorV,vec2(i,0.0));
+                float errorValue= map(unpack(errorColor));
+
+                sumError = sumError + (weightsValue * errorValue);
             }
-            float inputLayer = unpack(texture(inputV,vec2(TexCoord.y,0.0)));
-            gl_FragColor = pack(clip(unmap(sumError * inputLayer * (1.0-inputLayer))));
+
+            vec4 inpColor = texture(inputV,vec2(TexCoord.y,0.0));
+            float inpValue= map(unpack(inpColor));
+
+            gl_FragColor = pack(clip(unmap(sumError * inpValue * (1.0-inpValue) )));
         }
 
     }
 
     //calculate Momentum
     if(shaderMode == 4){
+        vec4 weightsColor = texture(weightsM,TexCoord.xy);
+        float weightsValue = map(unpack(weightsColor));
+        //weightsValue = weightsValue * (1.0- abs(weightsValue*weightsValue*weightsValue*weightsValue*weightsValue*weightsValue));
+
         vec4 errorColor = texture(errorV,vec2(TexCoord.y,0.0));
         float errorValue = map(unpack(errorColor));
 
@@ -108,14 +121,10 @@ void main()
     if(shaderMode == 5){
         vec4 weightsColor = texture(weightsM,TexCoord.xy);
         float weightsValue = map(unpack(weightsColor));
+        weightsValue = weightsValue * (1.0- abs(weightsValue*weightsValue*weightsValue*weightsValue*weightsValue*weightsValue));
 
         vec4 momentumColor = texture(momentumM,TexCoord.xy);
         float momentumValue = map(unpack(momentumColor));
-
-        //Adding tension term here to keep the weight down becs. it's clamped between -1...1
-        weightsValue = weightsValue * (1.0- abs(weightsValue*weightsValue*weightsValue*
-                                                weightsValue*weightsValue*weightsValue*
-                                                weightsValue*weightsValue*weightsValue));
 
         gl_FragColor = pack(clip(unmap(weightsValue + momentumValue)));
     }
@@ -125,7 +134,6 @@ void main()
         float pixelValue = map(unpack(pixelColor));
         if(pixelValue >= 0.0) gl_FragColor = vec4(pixelValue,0.0,0.0,1.0);
         else gl_FragColor = vec4(0.0,0.0,abs(pixelValue),1.0);
-        gl_FragColor = vec4(0.0,0.0,1.0,1.0);
     }
 
 }

@@ -32,7 +32,7 @@ class GLANN
                                    vector<float> error,
                                     ANNData* netToProcess);
 
-        void draw(ANNData* netToProcess);
+        void draw(ANNData* netToProcess,int x,int y);
 
     protected:
     private:

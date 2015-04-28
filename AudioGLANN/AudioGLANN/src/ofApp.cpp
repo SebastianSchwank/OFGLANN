@@ -3,39 +3,41 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 
-    ofDisableArbTex();
-    ofSetFrameRate(60);
+    ofSetFrameRate(0);
     //glEnable(GL_DEPTH_TEST);
 
-    netSize = 32;
+    netSize = 512;
     mWorker = new GLANN();
     mWorker->initGLANN(netSize);
 
-    mLayer1 = new ANNData( netSize, 0.2, 0.2, 0.00);
-    //mLayer2 = new ANNData( netSize, 0.1, 0.2, 0.03);
+    mLayer1 = new ANNData( netSize, 0.2, 0.2, 0.03);
+    //mLayer2 = new ANNData( netSize, 0.1, 1.0, 0.03);
+    //mLayer3 = new ANNData( netSize, 0.1, 0.8, 0.03);
 
-    //mLayer1->mWeights.loadImage("currentProjectsOutfile1.png");
-    //mLayer2->mWeights.loadImage("currentProjectsOutfile2.png");
-/*
-    signalInput.load("Input_Sonnentanz.wav");
+    mLayer1->mWeights.loadImage("ProjectsOutfileL1.png");
+    //mLayer2->mWeights.loadImage("ProjectsOutfileL2.png");
+
+    signalInput.load("Impulses.wav");
     //signalInput.load("AllesGute.wav");
-    signalTarget.load("Target_Sonnentanz.wav");
+    signalT1.load("ImpulseResponses.wav");
+    //signalT2.load("Frequenzweiche(Mid).wav");
+    //signalT3.load("Frequenzweiche(Low).wav");
 
-    signalInput.normalise(1.0);
-    signalTarget.normalise(1.0);
+    //signalInput.normalise(1.0);
+    //signalT1.normalise(1.0);
+    //signalT2.normalise(1.0);
+    //signalT3.normalise(1.0);
 
-    for(int i = 0; i < signalInput.length; i++){
+    for(int i = 0; i < signalInput.length; i++)
         audioInputF.push_back((signalInput.play()+1.0)/2.0);
-        audioTargetF.push_back((signalTarget.play()+1.0)/2.0);
-    }
-*/
-    for(int j = 0; j < netSize; j++){
-        for(int i = 0; i < netSize; i++){
-            audioTargetF.push_back((1.0+sin( ((1.0*i)/netSize) * 2 * 3.14159265359 * (0.05*j+1.0)))/2.0);
-            audioInputF.push_back(0.5);
-        }
-        audioInputF[j+j*netSize] = 0.999;
-    }
+
+    for(int i = 0; i < signalT1.length; i++)
+        audioTargetF.push_back((signalT1.play()+1.0)/2.0);
+
+    for(int j = 0; j < netSize/2; j++)
+        audioInputTimeParam.push_back(0.5);
+    audioInputTimeParam[audioInputTimeParam.size()-1] = 1.0;
+
 
     frameCounter = 0;
     training = true;
@@ -44,8 +46,11 @@ void ofApp::setup(){
 bool ofApp::train(){
 
         target.clear();
-        for(int i = 0; i < netSize; i++)
-            target.push_back(audioTargetF[i+frameCounter]);
+        for(int i = 0; i < netSize/2; i++)
+            target.push_back(audioTargetF[i]);
+
+        for(int i = 0; i < netSize/2; i++)
+            target.push_back(audioInputTimeParam[i]);
 
         float sumQuadError = 0.0;
         error.clear();
@@ -56,6 +61,8 @@ bool ofApp::train(){
         }
         globError.push_back(sumQuadError/netSize);
 
+        //vector<float> hiddenError = mWorker->propergateBW(inputHiddenLayer1,error,mLayer2);
+        //hiddenError = mWorker->propergateBW(inputHiddenLayer1,hiddenError,mLayer2);
         mWorker->propergateBW(input,error,mLayer1);
         //mWorker->propergateBW(input,hidenError,mLayer1);
 
@@ -65,8 +72,11 @@ bool ofApp::train(){
 bool ofApp::morph(){
 
         input.clear();
-        for(int i = 0; i < netSize; i++)
-            input.push_back(audioInputF[i+frameCounter]);
+        for(int i = 0; i < netSize/2; i++)
+            input.push_back(audioInputF[i]);
+
+        for(int i = 0; i < netSize/2; i++)
+            input.push_back(audioInputTimeParam[i]);
 
         //Don't forget the bias !
         input[0] = 0.999;
@@ -77,9 +87,21 @@ bool ofApp::morph(){
         //Don't forget the bias !
         //inputHiddenLayer[0] = 0.999;
 
+        //inputHiddenLayer1.clear();
+        //inputHiddenLayer1 = mWorker->propergateFW(input,mLayer1);
+
+        //Bias.
+        //inputHiddenLayer1[0] = 0.999;
+
         output.clear();
         output = mWorker->propergateFW(input,mLayer1);
+/*
+        //Bias.
+        inputHiddenLayer2[0] = 0.999;
 
+        output.clear();
+        output = mWorker->propergateFW(inputHiddenLayer2,mLayer3);
+*/
         return true;
 }
 
@@ -87,25 +109,37 @@ bool ofApp::morph(){
 void ofApp::update(){
 
     if(training){
+
+        frameCounter += 1;
+
         morph();
         train();
-        cout << "\r Training progress: "
-        << 100.0 * (float)frameCounter/audioInputF.size()
-        << "| Current mean-error per sample : " << globError[globError.size()-1];
+        //Wrap the vectors around
+        rotate(audioInputF.begin(),audioInputF.begin()+7,audioInputF.end());
+        rotate(audioTargetF.begin(),audioTargetF.begin()+7,audioTargetF.end());
+        if((frameCounter % (netSize/2)) == 0){
+            rotate(audioInputTimeParam.begin(),audioInputTimeParam.begin()+1,audioInputTimeParam.end());
+            cout << "TimeParam++ \n";
+        }
 
-        frameCounter += netSize;
+        cout << "\r Training progress: "
+        << frameCounter << "->" << audioInputF.size()/7
+        << "| Current mean-error per sample : " << globError[globError.size()-1];
 
         if(frameCounter >= audioInputF.size()){
             cout << "Training Lesson complete -> redo now !\n";
-            mLayer1->mWeights.saveImage("currentProjectsOutfile1.png");
-            //mLayer2->mWeights.saveImage("currentProjectsOutfile2.png");
+            mLayer1->mWeights.saveImage("ProjectsOutfileL1.png");
+            //mLayer2->mWeights.saveImage("ProjectsOutfileL2.png");
             cout << "Output Weights-Image written.\n" ;
-            mWorker->draw(mLayer1)->saveImage("currentProjectPreview1.png");
-            //mWorker->draw(mLayer2)->saveImage("currentProjectPreview2.png");
+            mWorker->getPrev(mLayer1).saveImage("ProjectPreviewL1.png");
+            //mWorker->getPrev(mLayer2).saveImage("ProjectPreviewL2.png");
             cout << "Preview Weights written.\n";
-            signalTarget.setPosition(0.0);
-            signalInput.setPosition(0.0);
             frameCounter = 0;
+
+            audioInputTimeParam.clear();
+            for(int j = 0; j < netSize/2; j++)
+                audioInputTimeParam.push_back(0.0);
+            audioInputTimeParam[0] = 1.0;
 
             float GlobErrorPerTraining = 0.0;
             for(int i = 0; i < globError.size(); i++){
@@ -118,7 +152,11 @@ void ofApp::update(){
         }
     }else{
         morph();
-        frameCounter += netSize;
+        //Wrap the vectors around
+        rotate(audioInputF.begin(),audioInputF.begin()+1,audioInputF.end());
+        rotate(audioTargetF.begin(),audioTargetF.begin()+1,audioTargetF.end());
+
+        frameCounter += 1;
 
         if(frameCounter >= audioInputF.size()){
             frameCounter = 0;
@@ -131,8 +169,9 @@ void ofApp::update(){
 void ofApp::draw(){
 
         ofClear(126);
-        mWorker->draw(mLayer1)->draw(0,256);
-        mLayer1->mMomentum.draw(0,256);
+        //mWorker->draw(mLayer1,netSize);
+        //mWorker->draw(mLayer2,netSize*2);
+        //mLayer1->mMomentum.draw(0,256);
 
         ofSetColor(255);
         ofDrawBitmapString("Input",0,50);
@@ -156,8 +195,8 @@ void ofApp::draw(){
 
         ofSetColor(255,255,0);
         for(int i = 1; i < periodicalError.size(); i++)
-            ofLine(netSize*2+(i%netSize),periodicalError[i-1]*256,
-                   netSize*2+(i%netSize+1),periodicalError[i]*256);
+            ofLine(netSize*2+(i),periodicalError[i-1]*8192,
+                   netSize*2+(i+1),periodicalError[i]*8192);
 
 }
 

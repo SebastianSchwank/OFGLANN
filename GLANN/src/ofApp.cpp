@@ -5,14 +5,16 @@ void ofApp::setup(){
 
     ofDisableArbTex();
     ofEnableAlphaBlending();
-    ofSetFrameRate(60);
+    ofSetFrameRate(0);
+    ofSetVerticalSync(false);
     glEnable(GL_DEPTH_TEST);
 
-    netSize = 128;
+    netSize = 256;
     mWorker = new GLANN();
     mWorker->initGLANN(netSize);
 
-    mNetwork = new ANNData( netSize, 0.2, 1.0, 0.00);
+    mLayer0 = new ANNData( netSize, 0.1, 1.0, 0.01);
+    mLayer1 = new ANNData( netSize, 0.1, 1.0, 0.01);
 
     frameCounter = 0;
     train = true;
@@ -31,7 +33,6 @@ void ofApp::draw(){
     int pos = frameCounter;
 
     vector<float> input;
-    input.clear();
     for(int i = 0; i < netSize; i++)
         //input.push_back((1.0+sin(((pos % netSize)/5.0)*i/netSize))/2.1);
         input.push_back(0.0);
@@ -43,32 +44,40 @@ void ofApp::draw(){
     //input[pos-1 % netSize] = 0.999;
 
 
-    vector<float> output;
-    output.clear();
-    output = mWorker->propergateFW(input,mNetwork);
+    vector<float> outputL0;
+    outputL0 = mWorker->propergateFW(input,mLayer0);
+
+    //Don't forget the bias !
+    outputL0[0] = 0.9999;
+    vector<float> outputL1;
+    outputL1 = mWorker->propergateFW(outputL0,mLayer1);
 
     vector<float> target;
-    target.clear();
     for(int i = 0; i < netSize; i++)
         target.push_back((1.0+sin(((pos % netSize)/5.0)*i/netSize))/2.1);
 
     float sumQuadError = 0.0;
     vector<float> error;
-    error.clear();
     for(int i = 0; i < netSize; i++){
-        error.push_back(4.0*(target[i]-output[i])*output[i]*(1.0-output[i]));
-        sumQuadError += (target[i]-output[i])*(target[i]-output[i]);
+        error.push_back(4.0*(target[i]-outputL1[i])*outputL1[i]*(1.0-outputL1[i]));
+        sumQuadError += (target[i]-outputL1[i])*(target[i]-outputL1[i]);
     }
     globError.push_back(sumQuadError);
 
-    if(train) mWorker->propergateBW(input,error,mNetwork);
+    if(train){
+        vector<float> backpropError = mWorker->propergateBW(outputL0,error,mLayer1);
+        //for(int i = 0; i < netSize; i++) cout << backpropError[i];
+        mWorker->propergateBW(input,backpropError,mLayer0);
+    }
 
 
-    mWorker->draw(mNetwork);
+
+    mWorker->draw(mLayer0,0,0);
+    mWorker->draw(mLayer1,0,netSize+5);
 
    ofSetColor(255);
     for(int i = 1; i < netSize; i++)
-        ofLine(netSize+i,output[i-1]*50+25,netSize+i+1,output[i]*50+25);
+        ofLine(netSize+i,outputL1[i-1]*50+25,netSize+i+1,outputL1[i]*50+25);
 
     ofSetColor(255,0,0);
     for(int i = 1; i < netSize; i++)
@@ -84,8 +93,8 @@ void ofApp::draw(){
 
     ofSetColor(255,255,0);
     for(int i = 1; i < periodicalError.size(); i++)
-        ofLine(netSize*2+(i%netSize),periodicalError[i-1],
-               netSize*2+(i%netSize+1),periodicalError[i]);
+        ofLine(netSize*2+(i%ofGetWidth()),periodicalError[i-1],
+               netSize*2+(i%ofGetWidth()+1),periodicalError[i]);
 
     if(frameCounter % netSize == 0){
             frameCounter = 0;
@@ -96,6 +105,9 @@ void ofApp::draw(){
             cout << SumPerError << "\n";
             globError.clear();
             periodicalError.push_back(SumPerError);
+
+            mLayer0->mWeights.saveImage("L0simpleDFT.png");
+            mLayer1->mWeights.saveImage("L1simpleDFT.png");
     }
 
 }

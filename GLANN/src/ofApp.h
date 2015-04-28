@@ -24,7 +24,9 @@ class ofApp : public ofBaseApp{
 
     private:
         GLANN*      mWorker;
-        ANNData*    mNetwork;
+        ANNData*    mLayer0;
+        ANNData*    mLayer1;
+
 
         int frameCounter;
         int netSize;

@@ -35,9 +35,11 @@ class ofApp : public ofBaseApp{
         GLANN*      mWorker;
         ANNData*    mLayer1;
         ANNData*    mLayer2;
+        ANNData*    mLayer3;
 
         vector<float> input;
-        vector<float> inputHiddenLayer;
+        vector<float> inputHiddenLayer1;
+        vector<float> inputHiddenLayer2;
         vector<float> output;
         vector<float> target;
         vector<float> errorHiddenLayer;
@@ -51,7 +53,10 @@ class ofApp : public ofBaseApp{
         vector<float> periodicalError;
 
         ofxMaxiSample signalInput;
-        ofxMaxiSample signalTarget;
+        ofxMaxiSample signalT1;
+        ofxMaxiSample signalT2;
+        ofxMaxiSample signalT3;
+        vector<float> audioInputTimeParam;
         vector<float> audioInputF;
         vector<float> audioTargetF;
 

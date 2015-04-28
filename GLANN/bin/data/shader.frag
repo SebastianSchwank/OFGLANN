@@ -44,8 +44,8 @@ float sigmoid(float x){
 }
 //Bcs. of 1.0 can't be packed (BUG) i've to clip before
 float clip(float val){
-    if (val >= 1.0) return 0.99;
-    if (val <= 0.0) return 0.00;
+    if (val >= 1.0) return 0.999;
+    if (val <= 0.0) return 0.000;
     return val;
 }
 
@@ -80,7 +80,13 @@ void main()
     if(shaderMode == 3){
 
         if(gl_FragCoord.y < 1.0){
-
+            float sumError = 0.0;
+            for(float i = 1.0/float(size*2); i <= 1.0; i+= 1.0/float(size)){
+                sumError += map(unpack(texture(weightsM,vec2(TexCoord.x,i)))) * map(unpack(texture(errorV,vec2(0.0,i))));
+            }
+            float inputOfNeuron = unpack(texture(inputV,vec2(TexCoord.x,0.0)));
+            float derivErrorSum = sumError * (1.0-inputOfNeuron) * inputOfNeuron;
+            gl_FragColor = pack(clip(unmap(derivErrorSum)));
         }
 
     }
@@ -91,7 +97,7 @@ void main()
         float weightsValue = map(unpack(weightsColor));
         //weightsValue = weightsValue * (1.0- abs(weightsValue*weightsValue*weightsValue*weightsValue*weightsValue*weightsValue));
 
-        vec4 errorColor = texture(errorV,vec2(TexCoord.y,0.0));
+        vec4 errorColor = texture(errorV,vec2(0.0,TexCoord.y));
         float errorValue = map(unpack(errorColor));
 
         vec4 inputColor = texture(inputV,vec2(TexCoord.x,0.0));

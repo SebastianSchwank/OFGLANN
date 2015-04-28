@@ -32,7 +32,8 @@ class GLANN
                                    vector<float> error,
                                     ANNData* netToProcess);
 
-        ofImage* draw(ANNData* netToProcess);
+        ofImage getPrev(ANNData* netToProcess);
+        void draw(ANNData* netToProcess,int posX);
 
     protected:
     private:
@@ -43,7 +44,6 @@ class GLANN
 
 		ofImage  mCurrInput;
 		ofImage  mCurrError;
-		ofImage  mCurrPreview;
 };
 
 #endif // GLANN_H
