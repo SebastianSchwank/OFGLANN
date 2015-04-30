@@ -2,13 +2,14 @@
 #define ANNDATA_H
 
 #include "ofImage.h"
+#include "ofFbo.h"
 
 #include "../glanntools.h"
 
 class ANNData
 {
     public:
-        ANNData(int size, float learningRate, float steepness, float momentum);
+        ANNData(int inputs,int outputs, float learningRate, float steepness, float momentum);
         ANNData(ofImage preCalcWeightsImage);
         virtual ~ANNData();
         ANNData(const ANNData& other);
@@ -17,10 +18,17 @@ class ANNData
         float getLearningRate();
         float getMomentum();
 
-        int getSize();
+        int getnumInputs();
+        int getnumOutputs();
 
         ofImage mWeights;
         ofImage mMomentum;
+
+        ofImage mInput;
+        ofImage mOutput;
+        ofImage mError;
+
+        ofFbo *mFbo;
 
     private:
 
@@ -28,7 +36,7 @@ class ANNData
         float steepness;
         float momentum;
 
-        int size;
+        int inputs,outputs;
 };
 
 #endif // ANNDATA_H

@@ -14,7 +14,8 @@ uniform float steepness;
 uniform float learningrate;
 uniform float momentum;
 
-uniform int size;
+uniform int InputSize;
+uniform int OutputSize;
 
 uniform int shaderMode;
 
@@ -69,7 +70,7 @@ void main()
     if(shaderMode == 2){
         if(gl_FragCoord.x <= 1.0){
             float sumPixels = 0.0;
-            for(float i = 1.0/float(size*2); i <= 1.0; i+= 1.0/float(size)){
+            for(float i = 1.0/float(InputSize*2); i <= 1.0; i+= 1.0/float(InputSize)){
                 sumPixels += map(unpack(texture(weightsM,vec2(i,TexCoord.y))));
             }
             gl_FragColor = pack(clip(sigmoid(sumPixels)));
@@ -81,7 +82,7 @@ void main()
 
         if(gl_FragCoord.y < 1.0){
             float sumError = 0.0;
-            for(float i = 1.0/float(size*2); i <= 1.0; i+= 1.0/float(size)){
+            for(float i = 1.0/float(OutputSize*2); i <= 1.0; i+= 1.0/float(OutputSize)){
                 sumError += map(unpack(texture(weightsM,vec2(TexCoord.x,i)))) * map(unpack(texture(errorV,vec2(0.0,i))));
             }
             float inputOfNeuron = unpack(texture(inputV,vec2(TexCoord.x,0.0)));
@@ -95,7 +96,7 @@ void main()
     if(shaderMode == 4){
         vec4 weightsColor = texture(weightsM,TexCoord.xy);
         float weightsValue = map(unpack(weightsColor));
-        //weightsValue = weightsValue * (1.0- abs(weightsValue*weightsValue*weightsValue*weightsValue*weightsValue*weightsValue));
+        weightsValue = weightsValue * (1.0- abs(weightsValue*weightsValue*weightsValue*weightsValue*weightsValue*weightsValue));
 
         vec4 errorColor = texture(errorV,vec2(0.0,TexCoord.y));
         float errorValue = map(unpack(errorColor));

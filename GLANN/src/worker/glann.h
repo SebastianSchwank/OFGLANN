@@ -18,7 +18,7 @@ class GLANN
         virtual ~GLANN();
 
         //Loades the shader and inits the fbos
-        bool initGLANN(int FboSize);
+        bool initGLANN();
 
         //This function propergates an input Vector through a given ANN returning
         //it's output (in case of rekurrent networks do this multible times on the
@@ -37,12 +37,8 @@ class GLANN
     protected:
     private:
 		ofShader shader;
-		ofFbo    fbo;
 
 		int      mFBOSize;
-
-		ofImage  mCurrInput;
-		ofImage  mCurrError;
 };
 
 #endif // GLANN_H

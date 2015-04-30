@@ -10,19 +10,11 @@ GLANN::~GLANN()
 {
     //dtor
     delete &shader;
-    delete &fbo;
 }
 
 //Loades the shader and inits the fbos
-bool GLANN::initGLANN(int FboSize){
+bool GLANN::initGLANN(){
     shader.load("shader");
-
-    mFBOSize = FboSize;
-
-    fbo.allocate(FboSize,FboSize,GL_RGBA);
-
-    mCurrError.allocate(1,FboSize,OF_IMAGE_COLOR_ALPHA);
-    mCurrInput.allocate(FboSize,1,OF_IMAGE_COLOR_ALPHA);
 }
 
 //This function propergates an input Vector through a given ANN returning
@@ -31,31 +23,33 @@ bool GLANN::initGLANN(int FboSize){
 vector<float> GLANN::propergateFW(vector<float> input, ANNData* netToProcess){
 
     //Pack the Input data to Image
-    for(int i = 0; i < mCurrInput.width; i++)
-        mCurrInput.setColor(i,0,GLANNTools::pack(input[i]));
+    for(int i = 0; i < netToProcess->mInput.width; i++)
+        netToProcess->mInput.setColor(i,0,GLANNTools::pack(input[i]));
 
-    mCurrInput.reloadTexture();
-    mCurrInput.update();
+    netToProcess->mInput.reloadTexture();
+    netToProcess->mInput.update();
 
     shader.begin();
 
         shader.setUniform1i("shaderMode",1);
-        shader.setUniform1i("size",mFBOSize);
+
+        shader.setUniform1i("InputSize",netToProcess->getnumInputs());
+        shader.setUniform1i("OutputSize",netToProcess->getnumOutputs());
 
         shader.setUniformTexture("weightsM",netToProcess->mWeights.getTextureReference(),1);
-        shader.setUniformTexture("inputV",mCurrInput.getTextureReference(),2);
+        shader.setUniformTexture("inputV",netToProcess->mInput.getTextureReference(),2);
 
-        fbo.begin();
+        netToProcess->mFbo->begin();
             ofClear(0,0,0,0);
             netToProcess->mWeights.draw(0,0);
-        fbo.end();
+        netToProcess->mFbo->end();
 
     shader.end();
 
     //fbo.draw(0,0);
 
     ofPixels MulMartix;
-    fbo.readToPixels(MulMartix);
+    netToProcess->mFbo->readToPixels(MulMartix);
 
     ofImage MatrixImage;
     MatrixImage.setFromPixels(MulMartix);
@@ -69,20 +63,22 @@ vector<float> GLANN::propergateFW(vector<float> input, ANNData* netToProcess){
         shader.setUniformTexture("weightsM",MatrixImage.getTextureReference(),1);
 
         shader.setUniform1f("steepness",netToProcess->getSteepness());
-        shader.setUniform1i("size",mFBOSize);
 
-        fbo.begin();
+        shader.setUniform1i("InputSize",netToProcess->getnumInputs());
+        shader.setUniform1i("OutputSize",netToProcess->getnumOutputs());
+
+        netToProcess->mFbo->begin();
             ofClear(0,0,0,0);
             netToProcess->mWeights.draw(0,0);
-        fbo.end();
+        netToProcess->mFbo->end();
 
     shader.end();
 
     ofPixels Output;
-    fbo.readToPixels(Output);
+    netToProcess->mFbo->readToPixels(Output);
 
     vector<float> output;
-    for(int i = 0; i < mFBOSize; i++)
+    for(int i = 0; i < netToProcess->mOutput.height; i++)
         output.push_back(GLANNTools::unpack(Output.getColor(0,i)));
 
     return output;
@@ -94,18 +90,18 @@ vector<float> GLANN::propergateFW(vector<float> input, ANNData* netToProcess){
 vector<float> GLANN::propergateBW(vector<float> input, vector<float> error
                                   ,ANNData* netToProcess){
     //Pack the Input data to Image
-    for(int i = 0; i < mCurrInput.width; i++)
-        mCurrInput.setColor(i,0,GLANNTools::pack(input[i]));
+    for(int i = 0; i < netToProcess->mInput.width; i++)
+        netToProcess->mInput.setColor(i,0,GLANNTools::pack(input[i]));
 
-    mCurrInput.reloadTexture();
-    mCurrInput.update();
+    netToProcess->mInput.reloadTexture();
+    netToProcess->mInput.update();
 
     //Pack the Output data to Image
-    for(int i = 0; i < mCurrError.height; i++)
-        mCurrError.setColor(0,i,GLANNTools::pack((1.0+error[i])/2.0));
+    for(int i = 0; i < netToProcess->mError.height; i++)
+        netToProcess->mError.setColor(0,i,GLANNTools::pack((1.0+error[i])/2.0));
 
-    mCurrError.reloadTexture();
-    mCurrError.update();
+    netToProcess->mError.reloadTexture();
+    netToProcess->mError.update();
 
 
     shader.begin();
@@ -113,22 +109,23 @@ vector<float> GLANN::propergateBW(vector<float> input, vector<float> error
         shader.setUniform1i("shaderMode",3);
 
         shader.setUniformTexture("weightsM",netToProcess->mWeights.getTextureReference(),1);
-        shader.setUniformTexture("inputV",mCurrInput.getTextureReference(),2);
-        shader.setUniformTexture("errorV",mCurrError.getTextureReference(),3);
+        shader.setUniformTexture("inputV",netToProcess->mInput.getTextureReference(),2);
+        shader.setUniformTexture("errorV",netToProcess->mError.getTextureReference(),3);
 
-        shader.setUniform1i("size",mFBOSize);
+        shader.setUniform1i("InputSize",netToProcess->getnumInputs());
+        shader.setUniform1i("OutputSize",netToProcess->getnumOutputs());
 
-        fbo.begin();
+        netToProcess->mFbo->begin();
             ofClear(0,0,0,0);
             netToProcess->mWeights.draw(0,0);
-        fbo.end();
+        netToProcess->mFbo->end();
 
     shader.end();
 
     ofPixels fboPixels;
-    fbo.readToPixels(fboPixels);
+    netToProcess->mFbo->readToPixels(fboPixels);
     error.clear();
-    for(int i = 0; i < mCurrError.height; i++)
+    for(int i = 0; i < netToProcess->mInput.height; i++)
         error.push_back(2.0*GLANNTools::unpack(fboPixels.getColor(i,0))-1.0);
 
     shader.begin();
@@ -137,22 +134,24 @@ vector<float> GLANN::propergateBW(vector<float> input, vector<float> error
 
         shader.setUniformTexture("weightsM",netToProcess->mWeights.getTextureReference(),1);
         shader.setUniformTexture("momentumM",netToProcess->mMomentum.getTextureReference(),2);
-        shader.setUniformTexture("inputV",mCurrInput.getTextureReference(),3);
-        shader.setUniformTexture("errorV",mCurrError.getTextureReference(),4);
+        shader.setUniformTexture("inputV",netToProcess->mInput.getTextureReference(),3);
+        shader.setUniformTexture("errorV",netToProcess->mError.getTextureReference(),4);
 
-        shader.setUniform1i("size",mFBOSize);
+        shader.setUniform1i("InputSize",netToProcess->getnumInputs());
+        shader.setUniform1i("OutputSize",netToProcess->getnumOutputs());
+
         shader.setUniform1f("learningrate",netToProcess->getLearningRate());
         shader.setUniform1f("momentum",netToProcess->getMomentum());
 
-        fbo.begin();
+        netToProcess->mFbo->begin();
             ofClear(0,0,0,0);
             netToProcess->mWeights.draw(0,0);
-        fbo.end();
+        netToProcess->mFbo->end();
 
     shader.end();
 
     fboPixels.clear();
-    fbo.readToPixels(fboPixels);
+    netToProcess->mFbo->readToPixels(fboPixels);
     netToProcess->mMomentum.setFromPixels(fboPixels);
 
     shader.begin();
@@ -162,17 +161,18 @@ vector<float> GLANN::propergateBW(vector<float> input, vector<float> error
         shader.setUniformTexture("weightsM",netToProcess->mWeights.getTextureReference(),1);
         shader.setUniformTexture("momentumM",netToProcess->mMomentum.getTextureReference(),2);
 
-        shader.setUniform1i("size",mFBOSize);
+        shader.setUniform1i("InputSize",netToProcess->getnumInputs());
+        shader.setUniform1i("OutputSize",netToProcess->getnumOutputs());
 
-        fbo.begin();
+        netToProcess->mFbo->begin();
             ofClear(0,0,0,0);
             netToProcess->mWeights.draw(0,0);
-        fbo.end();
+        netToProcess->mFbo->end();
 
     shader.end();
 
     fboPixels.clear();
-    fbo.readToPixels(fboPixels);
+    netToProcess->mFbo->readToPixels(fboPixels);
     netToProcess->mWeights.setFromPixels(fboPixels);
 
     return error;
