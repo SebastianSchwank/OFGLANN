@@ -12,7 +12,7 @@ ANNData::ANNData(int inputs,int outputs, float learningRate, float steepness, fl
     mWeights.allocate(inputs, outputs, OF_IMAGE_COLOR_ALPHA);
     for(int x = 0; x < inputs; x++){
         for(int y= 0; y < outputs; y++){
-            ofColor pixelColor = GLANNTools::pack(ofRandom(0.49,0.51));
+            ofColor pixelColor = GLANNTools::pack(ofRandom(0.45,0.55));
             mWeights.setColor(x,y,pixelColor);
         }
     }

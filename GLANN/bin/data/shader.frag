@@ -86,7 +86,8 @@ void main()
                 sumError += map(unpack(texture(weightsM,vec2(TexCoord.x,i)))) * map(unpack(texture(errorV,vec2(0.0,i))));
             }
             float inputOfNeuron = unpack(texture(inputV,vec2(TexCoord.x,0.0)));
-            float derivErrorSum = sumError * (1.0-inputOfNeuron) * inputOfNeuron;
+            float derivErrorSum = 4.0 * sumError * (1.0-inputOfNeuron) * inputOfNeuron;
+            //Scale and pack
             gl_FragColor = pack(clip(unmap(derivErrorSum)));
         }
 

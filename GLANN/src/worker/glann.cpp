@@ -125,7 +125,7 @@ vector<float> GLANN::propergateBW(vector<float> input, vector<float> error
     ofPixels fboPixels;
     netToProcess->mFbo->readToPixels(fboPixels);
     error.clear();
-    for(int i = 0; i < netToProcess->mInput.height; i++)
+    for(int i = 0; i < netToProcess->mInput.width; i++)
         error.push_back(2.0*GLANNTools::unpack(fboPixels.getColor(i,0))-1.0);
 
     shader.begin();
