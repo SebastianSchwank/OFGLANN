@@ -9,21 +9,28 @@ void ofApp::setup(){
     ofSetVerticalSync(false);
     glEnable(GL_DEPTH_TEST);
 
-    //Input = Values 256 + bias = 256
-    netSize = 16;
+    //Input = Values 2x128 + 1 bias
+     InputSize = 257;
+    //Output == Values + Internal Calculations
+    OutputSize = 128;
     mWorker = new GLANN();
     mWorker->initGLANN();
 
-    mLayer0 = new ANNData( netSize, netSize, 0.5, 5.0, 0.01);
-    mLayer1 = new ANNData( netSize, netSize, 0.5, 5.0, 0.01);
-    mLayer2 = new ANNData( netSize, netSize, 0.5, 5.0, 0.01);
-    mLayer3 = new ANNData( netSize, netSize, 0.5, 5.0, 0.01);
+    mLayer = new ANNData( InputSize, OutputSize, 0.1, 0.1, 0.01);
+    mGateLayer = new ANNData( OutputSize, OutputSize, 0.1, 0.1, 0.01);
+    //mLayer2 = new ANNData( netSize, netSize, 0.5, 5.0, 0.01);
+    //mLayer3 = new ANNData( netSize, netSize, 0.5, 5.0, 0.01);
 
-    //mLayer0->mWeights.loadImage("L0Phase&FrequFSythesis.png");
+    //mLayer0->mWeights.loadImage("L0FrequFSythesisFeedbackAdded.png");
     //mLayer1->mWeights.loadImage("L1Phase&FrequFSythesis.png");
+
+    for(int i = 0; i < InputSize; i++)
+        feedback.push_back(0.5);
 
     frameCounter = 0;
     train = true;
+
+    periodicalError.push_back(999999.9);
 }
 
 //--------------------------------------------------------------
@@ -35,96 +42,81 @@ void ofApp::update(){
 void ofApp::draw(){
 
     frameCounter++;
+    int Frequency = frameCounter % OutputSize;
 
     vector<float> input;
 
-    int Frequency = frameCounter%netSize;
-    float Amp     = 0.9999;
-
-    for(int i = 0; i < netSize; i++)
-        input.push_back(0.5);
+    for(int i = 0; i < OutputSize+1; i++)
+        input.push_back((1.0+sin(0.2*Frequency*2.0*PI*(1.0*i/OutputSize)))/2.1);
 
     //Don't forget the bias !
     input[0] = 0.9999;
 
-    input[Frequency] = 0.9999;
+    //input[Frequency] = 0.9999;
     //input[Amp*125+126] = 0.9999;
 
+            //ITERATION == 2 !!!
+
+            for(int i = 0; i < OutputSize; i++)
+                input.push_back(feedback[i]);
+
             vector<float> outputL0;
-            outputL0 = mWorker->propergateFW(input,mLayer0);
+            outputL0 = mWorker->propergateFW(input,mLayer);
 
-            //Don't forget the bias !
-            outputL0[0] = 0.9999;
-
+            feedback.clear();
             vector<float> outputL1;
-            outputL1 = mWorker->propergateFW(outputL0,mLayer1);
+            outputL1 = mWorker->propergateFW(outputL0,mGateLayer);
+            feedback = outputL1;
 
-            //Don't forget the bias !
-            outputL1[0] = 0.9999;
-
-            vector<float> outputL2;
-            outputL2 = mWorker->propergateFW(outputL1,mLayer2);
-
-            //Don't forget the bias !
-            outputL2[0] = 0.9999;
-
-            vector<float> outputL3;
-            outputL3 = mWorker->propergateFW(outputL2,mLayer3);
-
-            //cout << outputL1.size();
-
-            //ofSetColor(outputL1[2] * 255);
-            //ofCircle(x,y,1);
-
-        //Target = Histogramm of noise
         vector<float> target;
-        for(int i = 0; i < netSize; i++)
-            target.push_back((1.0+Amp*sin(0.2*Frequency*2.0*PI*(1.0*i/netSize)))/2.1);
+        for(int i = 0; i < OutputSize; i++)
+            target.push_back(0.5);
+
+        target[Frequency] = 0.999;
 
         //target[255+Phase*256] = 1.0;
 
         float sumQuadError = 0.0;
         vector<float> error;
         for(int i = 0; i < target.size(); i++){
-            error.push_back(4.0*(target[i]-outputL3[i])*outputL3[i]*(1.0-outputL3[i]));
-            sumQuadError += (target[i]-outputL3[i])*(target[i]-outputL3[i]);
+            error.push_back(4.0*(target[i]-outputL1[i])*outputL1[i]*(1.0-outputL1[i]));
+            sumQuadError += (target[i]-outputL1[i])*(target[i]-outputL1[i]);
         }
         globError.push_back(sumQuadError);
 
+        for(int i = 0; i < OutputSize; i++)
+            error.push_back(0.0);
+
         if(train){
-            vector<float> backpropError0 = mWorker->propergateBW(outputL2,error,mLayer3);
-            vector<float> backpropError1 = mWorker->propergateBW(outputL1,backpropError0,mLayer2);
-            vector<float> backpropError2 = mWorker->propergateBW(outputL0,backpropError1,mLayer1);
-            mWorker->propergateBW(input,backpropError2,mLayer0);
+            vector<float> bpErr = mWorker->propergateBW(outputL0,error,mGateLayer);
+            mWorker->propergateBW(input,bpErr,mLayer);
         }
 
-    mWorker->draw(mLayer0,0,0);
-    mWorker->draw(mLayer1,0,netSize+5);
-    mWorker->draw(mLayer2,0,2*(netSize+5));
-    mWorker->draw(mLayer3,0,3*(netSize+5));
+    mWorker->draw(mLayer,0,0);
+    mWorker->draw(mGateLayer,0,OutputSize);
 
    ofSetColor(255,255,0);
-    for(int i = 1; i < outputL3.size(); i++)
-        ofLine(netSize+i,outputL3[i-1]*50+25,netSize+i+1,outputL3[i]*50+25);
+    for(int i = 1; i < outputL1.size(); i++)
+        ofLine(InputSize+i,outputL1[i-1]*50+25,InputSize+i+1,outputL1[i]*50+25);
 
     ofSetColor(255,0,0);
     for(int i = 1; i < error.size(); i++)
-        ofLine(netSize+i,error[i-1]*50+25,netSize+i+1,error[i]*50+25);
+        ofLine(InputSize+i,error[i-1]*50+25,InputSize+i+1,error[i]*50+25);
 
     ofSetColor(0,255,255);
     for(int i = 1; i < input.size(); i++)
-        ofLine(netSize+i,input[i-1]*50+75,netSize+i+1,input[i]*50+75);
+        ofLine(InputSize+i,input[i-1]*50+75,InputSize+i+1,input[i]*50+75);
 
     ofSetColor(255,0,255);
     for(int i = 1; i < target.size(); i++)
-        ofLine(netSize+i,target[i-1]*50+75,netSize+i+1,target[i]*50+75);
+        ofLine(InputSize+i,target[i-1]*50+75,InputSize+i+1,target[i]*50+75);
 
     ofSetColor(255,255,0);
     for(int i = 1; i < periodicalError.size(); i++)
-        ofLine(netSize*2+(i%ofGetWidth()),periodicalError[i-1]*10.0,
-               netSize*2+(i%ofGetWidth()+1),periodicalError[i]*10.0);
+        ofLine(InputSize*2+(i%ofGetWidth()),periodicalError[i-1]*100.0,
+               InputSize*2+(i%ofGetWidth()+1),periodicalError[i]*100.0);
 
-    if(frameCounter % netSize == 0){
+    if(frameCounter % OutputSize == 0){
             float SumPerError = 0.0;
             for(int i = 1; i < globError.size(); i++)
                 SumPerError += globError[i];
@@ -133,11 +125,15 @@ void ofApp::draw(){
             periodicalError.push_back(SumPerError/globError.size());
             globError.clear();
 
-            if(train){
-                mLayer0->mWeights.saveImage("L0FrequFSythesis.png");
-                mLayer1->mWeights.saveImage("L1FrequFSythesis.png");
-                mLayer2->mWeights.saveImage("L2FrequFSythesis.png");
-                mLayer3->mWeights.saveImage("L3FrequFSythesis.png");
+            if(train & (periodicalError[periodicalError.size()-1] <  periodicalError[periodicalError.size()-2]) ){
+                mLayer->mWeights.saveImage("LFrequFSythesisFeedbackAdded.png");
+                mGateLayer->mWeights.saveImage("GFrequFSythesisFeedbackAdded.png");
+                cout << "Saved";
+            }else{
+                //mLayer0->mWeights.loadImage("L0FrequFSythesisFeedbackAdded.png");
+                //mLayer0->randMomentum(1.0);
+                //periodicalError.pop_back();
+                //cout << "Loaded";
             }
     }
 

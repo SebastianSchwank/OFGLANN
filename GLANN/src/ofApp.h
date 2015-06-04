@@ -24,14 +24,13 @@ class ofApp : public ofBaseApp{
 
     private:
         GLANN*      mWorker;
-        ANNData*    mLayer0;
-        ANNData*    mLayer1;
-        ANNData*    mLayer2;
-        ANNData*    mLayer3;
+        ANNData*    mLayer;
+        ANNData*    mGateLayer;
 
+        vector<float> feedback;
 
         int frameCounter;
-        int netSize;
+        int InputSize,OutputSize;
         bool train;
         vector<float> globError;
         vector<float> periodicalError;

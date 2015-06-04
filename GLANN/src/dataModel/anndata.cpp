@@ -39,6 +39,18 @@ ANNData::ANNData(int inputs,int outputs, float learningRate, float steepness, fl
 
 }
 
+void ANNData::randMomentum(float spread){
+    for(int x = 0; x < inputs; x++){
+        for(int y= 0; y < outputs; y++){
+            float mom = 0.5 + ofRandom(-spread/2.0,spread/2.0);
+            ofColor pixelColor = GLANNTools::pack(mom);
+            mMomentum.setColor(x,y,pixelColor);
+        }
+    }
+    mMomentum.update();
+    mMomentum.reloadTexture();
+}
+
 float ANNData::getSteepness(){
     return steepness;
 }

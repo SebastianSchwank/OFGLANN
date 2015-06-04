@@ -21,6 +21,8 @@ class ANNData
         int getnumInputs();
         int getnumOutputs();
 
+        void randMomentum(float spread);
+
         ofImage mWeights;
         ofImage mMomentum;
 
