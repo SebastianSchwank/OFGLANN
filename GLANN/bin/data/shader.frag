@@ -97,6 +97,7 @@ void main()
     if(shaderMode == 4){
         vec4 weightsColor = texture(weightsM,TexCoord.xy);
         float weightsValue = map(unpack(weightsColor));
+        //Holdback
         weightsValue = weightsValue * (1.0- abs(weightsValue*weightsValue*weightsValue*weightsValue*weightsValue*weightsValue));
 
         vec4 errorColor = texture(errorV,vec2(0.0,TexCoord.y));
@@ -121,6 +122,14 @@ void main()
 
         gl_FragColor = pack(clip(unmap(weightsValue + momentumValue)));
     }
+
+    //Hebbian Learning
+    if(shaderMode == 6){
+        float inputOfNeuron = unpack(texture(inputV,vec2(TexCoord.x,0.0)));
+
+
+    }
+
 
     if(shaderMode == -1){
         vec4 pixelColor = texture(weightsM,TexCoord);

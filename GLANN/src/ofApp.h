@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofMath.h"
 
 #include "dataModel/anndata.h"
 #include "worker/glann.h"
@@ -23,11 +24,15 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
     private:
-        GLANN*      mWorker;
-        ANNData*    mLayer;
-        ANNData*    mGateLayer;
+        GLANN*              mWorker;
 
-        vector<float> feedback;
+        ANNData*            mInputL;
+        ANNData*            mL0;
+        vector<ANNData*>    mLayers;
+        int numHLayers = 8;
+
+        int sizeV = 64;
+        int freqMax = 10;
 
         int frameCounter;
         int InputSize,OutputSize;
